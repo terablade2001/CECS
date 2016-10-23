@@ -7,10 +7,14 @@ int main(int argc, char **argv) {
 	printf("Test Error #0: %s\n", CECS_getErrorStr(0));
 	CECS_clear();
 
-	CECS = CECS_Initialize(NULL);
+    printf("Name of CECS before Initialization: %s\n", CECS_getName());
+
+	CECS = CECS_Initialize("MainCECS",NULL);
 	printf("Test Error #1: %s\n", CECS_getErrorStr(0));
 	CECS_clear();
 
+    printf("Name of CECS after Initialization: %s\n", CECS_getName());
+    
 	CECS_RecError(-0,"%s", "First error occurred!");
 	printf("Test Error #2: %s\n", CECS_getErrorStr(0));
 	CECS_clear();

@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.001)
+#define CECS__VERSION (0.002)
 #define CECS__MAXERRORS (64)
 #define CECS__ERRORID (-1000000000)
 
@@ -40,6 +40,7 @@
 
 
 typedef struct sCECS {
+	char* Name;
 	int NErrors;
 	char** SErrors;
 	int ErrorLength;
@@ -51,12 +52,20 @@ typedef struct sCECS {
 project (i.e. when mixing third party libaries which in use a static 
 existance of the CECS library), thus for proper usage, the client can select 
 which CECS object will be used using a pointer to it.
+*   \param [in] name Is a string (up to 64 characters) representing in a
+textual way the CECS object that is used. If the CECS it has been initialied 
+before (with another name) then, the 'name' argument is ignored.
  *  \param [in] Pointer to a CECS object that is going to be used for error 
 recording. If that pointer is NULL then the default CECS object is going to 
 be used.
- *  \return The pointer to the CECS object that is used (Linked object)
+ *  \return The pointer to the CECS object that is ussed (Linked object)
+ *  \details When 'pcecs' argument is NULL this means that the CECS object 
+that is going to be initialized is a brand new object; and therefore it 
+needs and a name. The 'name' argument is then used. When the 'pcecs' 
+argument is not NULL, the 'name' argument is used on if the 'pcecs' argument 
+is pointing to a non-initialized CECS object.
  */
-sCECS* CECS_Initialize(sCECS* pcecs);
+sCECS* CECS_Initialize(char* name, sCECS* pcecs);
 
 /**
  *  \brief Cleanup and Resets an CECS object by pointer. If the input pointer 
@@ -84,6 +93,13 @@ recorded with id 0)
  *  \return The error's message string.
  */
 const char* CECS_getErrorStr(int id);
+
+/**
+ *  \brief Returns the name of the linked CECS object (for identification 
+reasons)
+ *  \return The name of the CECS linked object.
+ */
+const char* CECS_getName(void);
 
 /**
  *  \brief Clears the recorded errors from the error table.

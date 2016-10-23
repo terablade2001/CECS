@@ -24,6 +24,7 @@
 
 static sCECS* pCECS = NULL;
 static sCECS CECS = {
+	.Name = NULL,
 	.NErrors = 0,
 	.SErrors = NULL,
 	.ErrorLength = 256,
@@ -31,7 +32,7 @@ static sCECS CECS = {
 };
 
 
-sCECS* CECS_Initialize(sCECS* pcecs) {
+sCECS* CECS_Initialize(char* name, sCECS* pcecs) {
 	int i = 0;
 
 	// Clean up current CECS object
@@ -52,6 +53,12 @@ sCECS* CECS_Initialize(sCECS* pcecs) {
 			pCECS->SErrors[i] = (char*) malloc(sizeof(char*) * pCECS->ErrorLength);
 		}
 	}
+	
+	if (pCECS->Name == NULL) {
+		pCECS->Name = (char*) malloc(sizeof(char*) * 64);
+		if (name != NULL) snprintf(pCECS->Name, 64, name);
+		else snprintf(pCECS->Name, 64, "CECS-UnNamed");
+	}
 
 	return pCECS;
 }
@@ -61,23 +68,26 @@ sCECS* CECS_Initialize(sCECS* pcecs) {
 sCECS* CECS_Shutdown(sCECS* pcecs) {
 	int i = 0;
 	if (pcecs == NULL) pcecs = pCECS;
-    
-    if (pcecs->SErrors != NULL) {
-        for (i = 0; i < pcecs->NErrors; i++)
-            free(pcecs->SErrors[i]);
-        free(pcecs->SErrors);
-    }
-    pcecs->SErrors = NULL;
-    pcecs->NErrors = 0;
 
-    return pCECS;
+	if (pcecs->SErrors != NULL) {
+		for (i = 0; i < pcecs->NErrors; i++)
+			free(pcecs->SErrors[i]);
+		free(pcecs->SErrors);
+	}
+	if (pcecs->Name != NULL) free(pcecs->Name);
+
+	pcecs->Name    = NULL;
+	pcecs->SErrors = NULL;
+	pcecs->NErrors = 0;
+
+	return pCECS;
 }
 
 
 sCECS* CECS_RecError(int errid, char* msg, ...) {
 	// If pCECS or CECS are not initialized, initialize the internal CECS object.
 	if (pCECS == NULL) pCECS = &CECS;
-	if (pCECS->SErrors == NULL) CECS_Initialize(NULL);
+	if (pCECS->SErrors == NULL) CECS_Initialize(NULL, NULL);
 	if (pCECS->NErrors < pCECS->MaxErrors-1) {
 		va_list(vargs);
 		va_start(vargs, msg);
@@ -93,7 +103,7 @@ const char* CECS_getErrorStr(int id) {
 	int isInit = 1;
 
 	if (pCECS == NULL) { pCECS = &CECS; isInit = 0; }
-	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL); isInit = 0; }
+	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, NULL); isInit = 0; }
 	if (isInit == 0) CECS_RecError(CECS__ERRORID, "CECS_getError(): CECS was Not Initialized!");
     
 	
@@ -107,6 +117,13 @@ const char* CECS_getErrorStr(int id) {
 	}
     
 	return (const char*) pCECS->SErrors[id];
+}
+
+
+const char* CECS_getName(void) {
+	if (pCECS == NULL) pCECS = &CECS;
+	if (pCECS->Name == NULL) CECS_Initialize(NULL, NULL);
+	return (const char*)pCECS->Name;
 }
 
 void CECS_clear(void) {
