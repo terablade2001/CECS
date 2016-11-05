@@ -178,6 +178,19 @@ sCECS* CECS_RecError(
     return pCECS;
 }
 
+int CECS_GetNumberOfAllErrors(void) {
+	CECS_CheckIfInit("CECS_getErrorStr()");
+	return pCECS->NErrors;
+}
+
+int CECS_GetNumberOfErrorsByType(int typeId) {
+	int i, ret = 0;
+	CECS_CheckIfInit("CECS_getErrorStr()");
+	const int NErrors = pCECS->NErrors;
+	for (i = 0; i < NErrors; i++)
+		if (pCECS->TErrors[i] == typeId) ret++;
+	return ret;
+}
 
 const char* CECS_getErrorStr(int id) {
 	CECS_CheckIfInit("CECS_getErrorStr()");

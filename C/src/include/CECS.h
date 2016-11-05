@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.003)
+#define CECS__VERSION (0.004)
 #define CECS__MAXERRORS (64)
 #define CECS__ERRORID (-1000000000)
 
@@ -40,6 +40,34 @@
 #ifndef __FNAME__
 	#define __FNAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #endif
+
+
+// Default Error Types ids
+#define _CECS_ERRTYPE_ERROR (0)
+#define _CECS_ERRTYPE_WARNING (1)
+#define _CECS_ERRTYPE_INFO (2)
+#define _CECS_ERRTYPE_DEBUG (4)
+
+// Default Macro-Numbers used in CECS_ERR/WARN/INFO/DEBUG macros.
+#define _CECS_DEFAULT_ERRID (CECS__ERRORID+1)
+#define _CECS_DEFAULT_WARNID (CECS__ERRORID+2)
+#define _CECS_DEFAULT_INFOID (0)
+#define _CECS_DEFAULT_DEBUGID (0)
+
+// User short-code macros
+#define CECS_IERR(ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecError((ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_IWARN(ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecError((ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+
+#define CECS_ERR(ExpR, args...) \
+	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_WARN(ExpR, args...) \
+	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#define CECS_INFO(ExpR, args...) \
+	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
+#define CECS_DEBUG(ExpR, args...) \
+	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
 
 
 typedef struct sCECS {
@@ -111,6 +139,20 @@ sCECS* CECS_RecError(
 	char* msg,
 	...
 );
+
+/**
+ *  \brief Returns number of recorded errors/events in the table.
+ *  \return The number of records.
+ */
+int CECS_GetNumberOfAllErrors(void);
+
+/**
+ *  \brief Returns number of recorded errors/events in the table of specific 
+ *  type.
+ *  \param [in] typeId A number representing the Type of the error.
+ *  \return The number of records of specific type.
+ */
+int CECS_GetNumberOfErrorsByType(int typeId);
 
 /**
  *  \brief Returns an error message based on it's id (First error occuring is 
