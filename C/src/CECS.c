@@ -23,6 +23,7 @@
 #include "include/CECS.h"
 
 static sCECS* pCECS = NULL;
+
 static sCECS CECS = {
 	.Name = NULL,
 	.SetupFlag = 0xFF,
@@ -32,6 +33,7 @@ static sCECS CECS = {
 	.TErrors = NULL,
 	.FErrors = NULL,
 	.LErrors = NULL,
+	.SErrIDs = NULL,
 	.ErrorLength = 256,
 	.MaxErrors = CECS__MAXERRORS
 };
@@ -84,6 +86,9 @@ sCECS* CECS_Initialize(char* name, sCECS* pcecs) {
 	if (pCECS->LErrors == NULL)
 		pCECS->LErrors = (unsigned int*) calloc(MaxErrors, sizeof(unsigned int*));
 
+	if (pCECS->SErrIDs == NULL)
+		pCECS->SErrIDs = (int*) calloc(MaxErrors, sizeof(int*));
+
 	return pCECS;
 }
 
@@ -105,9 +110,8 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 		free(pcecs->SErrors);
 	}
 
-	free(pcecs->IErrors);
-
-	free(pcecs->TErrors);
+	if (pcecs->IErrors != NULL) free(pcecs->IErrors);
+	if (pcecs->TErrors != NULL) free(pcecs->TErrors);
 
 	if (pcecs->FErrors != NULL) {
 		for (i = 0; i < MaxErrors; i++)
@@ -115,7 +119,8 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 		free(pcecs->FErrors);
 	}
 
-	free(pcecs->LErrors);
+	if (pcecs->LErrors != NULL) free(pcecs->LErrors);
+	if (pcecs->SErrIDs != NULL) free(pcecs->SErrIDs);
 
 	pcecs->Name    = NULL;
 	pcecs->NErrors = 0;
@@ -124,6 +129,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	pcecs->TErrors = NULL;
 	pcecs->FErrors = NULL;
 	pcecs->LErrors = NULL;
+	pcecs->SErrIDs = NULL;
 
 	return pCECS;
 }
@@ -188,8 +194,13 @@ int CECS_GetNumberOfErrorsByType(int typeId) {
 	CECS_CheckIfInit("CECS_getErrorStr()");
 	const int NErrors = pCECS->NErrors;
 	for (i = 0; i < NErrors; i++)
-		if (pCECS->TErrors[i] == typeId) ret++;
+		if (pCECS->TErrors[i] == typeId) pCECS->SErrIDs[ret++] = i;
 	return ret;
+}
+
+int* CECS_GetErrorsIDsByType(int typeId, int* NErr) {
+	(*NErr) = CECS_GetNumberOfErrorsByType(typeId);
+	return pCECS->SErrIDs;
 }
 
 const char* CECS_getErrorStr(int id) {

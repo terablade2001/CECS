@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.004)
+#define CECS__VERSION (0.005)
 #define CECS__MAXERRORS (64)
 #define CECS__ERRORID (-1000000000)
 
@@ -79,6 +79,7 @@ typedef struct sCECS {
 	int* TErrors;
 	char** FErrors;
 	unsigned int* LErrors;
+	int* SErrIDs;
 	int ErrorLength;
 	int MaxErrors;
 } sCECS;
@@ -153,6 +154,16 @@ int CECS_GetNumberOfAllErrors(void);
  *  \return The number of records of specific type.
  */
 int CECS_GetNumberOfErrorsByType(int typeId);
+
+/**
+ *  \brief Returns the IDs of recorded errors, for a specific type, thus the 
+ *  client to be able to read only the errors of the specific type by using 
+ *  the corresponding functions CECS_getErrorStr/Id/Type/File/Line/Name().
+ *  \param [in] typeId A number representing the Type of the error.
+ *  \param [out] NErr Number of recorded errors of specific type.
+ *  \return Pointer to table with error IDs of the specific type.
+ */
+int* CECS_GetErrorsIDsByType(int typeId, int* NErr);
 
 /**
  *  \brief Returns an error message based on it's id (First error occuring is 

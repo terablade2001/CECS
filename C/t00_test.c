@@ -21,19 +21,20 @@ int main(int argc, char **argv) {
 	CECS_IERR(x > 5, 0, "Error during checking: x = %i > 5!", x);
 	CECS_WARN(x == 2, "Warning: x is 2 !");
 	
-	int NE;
+	int NE; int* IndxE;
 	NE = CECS_GetNumberOfAllErrors();
 	printf("\n*** Number of ALL Errors: %i\n", NE);
-	NE = CECS_GetNumberOfErrorsByType(_CECS_ERRTYPE_ERROR);
+	
+	IndxE = CECS_GetErrorsIDsByType(_CECS_ERRTYPE_ERROR, &NE);
 	printf("*** Number of Errors: %i\n", NE);
-	// for (int i = 0; i < NE; i++) {
-		// printf("Test Error #2-%i: %s\n", i, CECS_getErrorStr(i));
-	// }
-	NE = CECS_GetNumberOfErrorsByType(_CECS_ERRTYPE_WARNING);
+	for (int i = 0; i < NE; i++) {
+		printf("\tTest Error #2-%i: %s\n", i, CECS_getErrorStr(IndxE[i]));
+	}
+	IndxE = CECS_GetErrorsIDsByType(_CECS_ERRTYPE_WARNING, &NE);
 	printf("*** Number of Warnings: %i\n", NE);
-	// for (int i = 0; i < NE; i++) {
-		// printf("Test Error #2-%i: %s\n", i, CECS_getErrorStr(i));
-	// }	
+	for (int i = 0; i < NE; i++) {
+		printf("\tTest Warning #2-%i: %s\n", i, CECS_getErrorStr(IndxE[i]));
+	}
 	printf("*****\n");
 	CECS_clear();
 
