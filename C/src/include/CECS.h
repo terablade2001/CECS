@@ -24,11 +24,12 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.005)
+#define CECS__VERSION (0.006)
 #define CECS__MAXERRORS (64)
-#define CECS__ERRORID (-1000000000)
+#define CECS__ERRORID (-10000)
 
 #define CECS__FERRORL (256)
+#define CECS__MAXDISPSTRSIZE (CECS__FERRORL * CECS__MAXERRORS + 2)
 
 
 
@@ -43,6 +44,7 @@
 
 
 // Default Error Types ids
+#define _CECS_ERRTYPE_ALL (-1)
 #define _CECS_ERRTYPE_ERROR (0)
 #define _CECS_ERRTYPE_WARNING (1)
 #define _CECS_ERRTYPE_INFO (2)
@@ -69,7 +71,6 @@
 #define CECS_DEBUG(ExpR, args...) \
 	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
 
-
 typedef struct sCECS {
 	char* Name;
 	unsigned char SetupFlag;
@@ -80,8 +81,10 @@ typedef struct sCECS {
 	char** FErrors;
 	unsigned int* LErrors;
 	int* SErrIDs;
+	char* DispStr;
 	int ErrorLength;
 	int MaxErrors;
+	int MaxDisplayStringSize;
 } sCECS;
 
 /**
@@ -207,6 +210,13 @@ unsigned int CECS_getErrorLine(int id);
  *  \return The name of the CECS linked object.
  */
 const char* CECS_getName(void);
+
+/**
+ *  \brief Formatted display of all recorded errors
+ *  \param [in] typeId A number representing the Type of the error.
+ *  \return A pointer to character sequence with the formated errors.
+ */
+const char* CECS_str(int typeId);
 
 /**
  *  \brief Clears the recorded errors from the error table.

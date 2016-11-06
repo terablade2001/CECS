@@ -34,8 +34,10 @@ static sCECS CECS = {
 	.FErrors = NULL,
 	.LErrors = NULL,
 	.SErrIDs = NULL,
+	.DispStr = NULL,
 	.ErrorLength = 256,
-	.MaxErrors = CECS__MAXERRORS
+	.MaxErrors = CECS__MAXERRORS,
+	.MaxDisplayStringSize = CECS__MAXDISPSTRSIZE
 };
 
 
@@ -59,35 +61,38 @@ sCECS* CECS_Initialize(char* name, sCECS* pcecs) {
 
 	if (pCECS->SErrors == NULL) {
 		pCECS->NErrors = 0;
-		pCECS->SErrors = (char**) malloc(sizeof(char**) * MaxErrors);
+		pCECS->SErrors = (char**) malloc(sizeof(char*) * MaxErrors);
 		for (i = 0; i < MaxErrors; i++) {
-			pCECS->SErrors[i] = (char*) calloc(pCECS->ErrorLength, sizeof(char*));
+			pCECS->SErrors[i] = (char*) calloc(pCECS->ErrorLength, sizeof(char));
 		}
 	}
 
 	if (pCECS->Name == NULL) {
-		pCECS->Name = (char*) malloc(sizeof(char*) * 64);
+		pCECS->Name = (char*) malloc(sizeof(char) * 64);
 		if (name != NULL) snprintf(pCECS->Name, 64, name);
 		else snprintf(pCECS->Name, 64, "CECS-UnNamed");
 	}
 
 	if (pCECS->IErrors == NULL)
-		pCECS->IErrors = (int*) calloc(MaxErrors, sizeof(int*));
+		pCECS->IErrors = (int*) calloc(MaxErrors, sizeof(int));
 	
 	if (pCECS->TErrors == NULL)
-		pCECS->TErrors = (int*) calloc(MaxErrors, sizeof(int*));
+		pCECS->TErrors = (int*) calloc(MaxErrors, sizeof(int));
 
 	if(pCECS->FErrors == NULL) {
-		pCECS->FErrors = (char**)malloc(sizeof(char**) * MaxErrors);
+		pCECS->FErrors = (char**)malloc(sizeof(char*) * MaxErrors);
 		for (int i = 0; i < MaxErrors; i++)
-			pCECS->FErrors[i] = (char*)calloc(CECS__FERRORL, sizeof(char*));
+			pCECS->FErrors[i] = (char*)calloc(CECS__FERRORL, sizeof(char));
 	}
 
 	if (pCECS->LErrors == NULL)
-		pCECS->LErrors = (unsigned int*) calloc(MaxErrors, sizeof(unsigned int*));
+		pCECS->LErrors = (unsigned int*) calloc(MaxErrors, sizeof(unsigned int));
 
 	if (pCECS->SErrIDs == NULL)
-		pCECS->SErrIDs = (int*) calloc(MaxErrors, sizeof(int*));
+		pCECS->SErrIDs = (int*) calloc(MaxErrors, sizeof(int));
+
+	if (pCECS->DispStr == NULL)
+		pCECS->DispStr = (char*) calloc(pCECS->MaxDisplayStringSize, sizeof(char));
 
 	return pCECS;
 }
@@ -121,6 +126,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 
 	if (pcecs->LErrors != NULL) free(pcecs->LErrors);
 	if (pcecs->SErrIDs != NULL) free(pcecs->SErrIDs);
+	if (pcecs->DispStr != NULL) free(pcecs->DispStr);
 
 	pcecs->Name    = NULL;
 	pcecs->NErrors = 0;
@@ -130,6 +136,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	pcecs->FErrors = NULL;
 	pcecs->LErrors = NULL;
 	pcecs->SErrIDs = NULL;
+	pcecs->DispStr = NULL;
 
 	return pCECS;
 }
@@ -185,16 +192,21 @@ sCECS* CECS_RecError(
 }
 
 int CECS_GetNumberOfAllErrors(void) {
-	CECS_CheckIfInit("CECS_getErrorStr()");
+	CECS_CheckIfInit("CECS_GetNumberOfAllErrors()");
 	return pCECS->NErrors;
 }
 
 int CECS_GetNumberOfErrorsByType(int typeId) {
 	int i, ret = 0;
-	CECS_CheckIfInit("CECS_getErrorStr()");
+	CECS_CheckIfInit("CECS_GetNumberOfErrorsByType()");
 	const int NErrors = pCECS->NErrors;
-	for (i = 0; i < NErrors; i++)
-		if (pCECS->TErrors[i] == typeId) pCECS->SErrIDs[ret++] = i;
+	if (typeId != _CECS_ERRTYPE_ALL) {
+		for (i = 0; i < NErrors; i++)
+			if (pCECS->TErrors[i] == typeId) pCECS->SErrIDs[ret++] = i;
+	} else {
+		ret = NErrors;
+		for (int i = 0; i < NErrors; i++) pCECS->SErrIDs[i]=i;
+	}
 	return ret;
 }
 
@@ -293,6 +305,49 @@ const char* CECS_getName(void) {
 	if (pCECS == NULL) pCECS = &CECS;
 	if (pCECS->Name == NULL) CECS_Initialize(NULL, NULL);
 	return (const char*)pCECS->Name;
+}
+
+const char* CECS_str(int typeId) {
+	int i; int NE; int* IndxE;
+	unsigned char FS;
+	CECS_CheckIfInit("CECS_str()");
+	IndxE = CECS_GetErrorsIDsByType(typeId, &NE);
+	char* str = pCECS->DispStr;
+	int maxstrprint = pCECS->MaxDisplayStringSize;
+
+	if (typeId == _CECS_ERRTYPE_ALL) 
+		snprintf(str, maxstrprint,
+			"------- CECS:: %i Errors of ALL Types recorded! -------\n", NE, typeId
+		);
+	else
+		snprintf(str, maxstrprint,
+			"------- CECS:: %i Errors of Type {%i} recorded! -------\n", NE, typeId
+		);
+
+	if (NE > 0) {
+		FS = pCECS->SetupFlag;
+		for (i = 0; i < NE; i++) {
+			const int IDX = IndxE[i];
+			if (typeId != _CECS_ERRTYPE_ALL)
+				snprintf(str, maxstrprint, "%s-> ", str);
+			else
+				snprintf(str, maxstrprint, "%s[ErrType: %i]-> ", str, CECS_getErrorType(IDX));
+
+			if (FS & 0x01)
+				snprintf(str, maxstrprint, "%s%i |", str, CECS_getErrorId(IDX));
+			if (FS & 0x04)
+				snprintf(str, maxstrprint, "%s [%s],", str, CECS_getErrorFile(IDX));
+			if (FS & 0x08)
+				snprintf(str, maxstrprint, "%s %i::", str, CECS_getErrorLine(IDX));
+			if (FS & 0x10)
+				snprintf(str, maxstrprint, "%s %s", str, CECS_getErrorStr(IDX));
+			snprintf(str, maxstrprint, "%s\n",str);
+		}
+		snprintf(str, maxstrprint,
+			"%s-------------------------------------------------------\n",str);
+	}
+	CECS_clear();
+	return str;
 }
 
 void CECS_clear(void) {
