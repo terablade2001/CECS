@@ -24,9 +24,11 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.006)
+#define CECS__VERSION (0.007)
+
 #define CECS__MAXERRORS (64)
 #define CECS__ERRORID (-10000)
+#define CECS__MODNAMELENGTH (32)
 
 #define CECS__FERRORL (256)
 #define CECS__MAXDISPSTRSIZE (CECS__FERRORL * CECS__MAXERRORS + 2)
@@ -71,6 +73,21 @@
 #define CECS_DEBUG(ExpR, args...) \
 	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
 
+// Those macros also record Module-Name (which must exist in CECS_ModName[] table).
+#define CECS_MIERR(ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_MIWARN(ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+
+#define CECS_MERR(ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_MWARN(ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#define CECS_MINFO(ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
+#define CECS_MDEBUG(ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+
 typedef struct sCECS {
 	char* Name;
 	unsigned char SetupFlag;
@@ -82,6 +99,7 @@ typedef struct sCECS {
 	unsigned int* LErrors;
 	int* SErrIDs;
 	char* DispStr;
+	char** MErrors;
 	int ErrorLength;
 	int MaxErrors;
 	int MaxDisplayStringSize;
@@ -122,6 +140,30 @@ sCECS* CECS_Shutdown(sCECS* pcecs);
  *  \return 0-It is already initialized, -1 it was not initialized.
  */
 int CECS_CheckIfInit(const char* msg);
+
+/**
+ *  \brief Recording an Error in a CECS object using an extra identification 
+ *  flag called "modName". If not Linked object exist, then it uses the 
+ *  internal CECS object. If the used CECS object is not initialized, then it 
+ *  also initialize it.
+ *  \param [in] ModName Module Name (for further identification)
+ *  \param [in] errid An error id number.
+ *  \param [in] type A number indicating the type of the error (i.e. 0-Error, 1-Warning, 2-Info etc)
+ *  \param [in] fname Filename where error occurred (i.e. use __FNAME__ macro)
+ *  \param [in] line Line where error occurred (i.e. use __LINE__ macro)
+ *  \param [in] msg Text formating of the error.
+ *  \param [in] ... The client-defined error message parameters
+ *   \return The pointer to the Linked CECS object.
+ */
+sCECS* CECS_RecErrorMod(
+	const char* modName,
+	int errid,
+	int type,
+	const char* fname,
+	const unsigned int line,
+	char* msg,
+	...
+);
 
 /**
  *  \brief Recording an Error in a CECS object. If not Linked object exist, 
@@ -203,6 +245,13 @@ const char* CECS_getErrorFile(int id);
  *  \return The line
  */
 unsigned int CECS_getErrorLine(int id);
+/**
+ *  \brief Returns an error Module-name (where the error was occured) based on 
+ * it's id (First error occuring is recorded with id 0)
+ *  \param [in] id index for the error Module name to be returned.
+ *  \return The Module name
+ */
+const char* CECS_getErrorMod(int id);
 
 /**
  *  \brief Returns the name of the linked CECS object (for identification 
