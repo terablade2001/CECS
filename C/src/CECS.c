@@ -38,29 +38,42 @@ static sCECS CECS = {
 	.MErrors = NULL,
 	.ErrorLength = CECS__FERRORL,
 	.MaxErrors = CECS__MAXERRORS,
-	.MaxDisplayStringSize = CECS__MAXDISPSTRSIZE
+	.MaxDisplayStringSize = CECS__MAXDISPSTRSIZE,
+	.RefCounter = 0
 };
 
 
-sCECS* CECS_Initialize(char* name, sCECS* pcecs) {
+sCECS* CECS_Initialize(const char* name, sCECS* pcecs) {
 	int i = 0;
 	int MaxErrors = 0;
 
-
-
 	if (pcecs != NULL) { // Initialize using an external CECS object.
-		sCECS* tCECS = &CECS;
-		// If the client is initializing a different object, then clean current.
-		if (pcecs != tCECS) CECS_Shutdown(tCECS);
+		if ((pCECS != NULL) && (pCECS != pcecs)) CECS_Shutdown(pCECS);
 		pCECS = pcecs;
-
-		// If the ext-CECS has been already initialized, don't re-initialize it!
-		if (pCECS->SErrors != NULL) return pCECS;
 	} else { // Initialize using the internal CECS object.
-		// Clean up current CECS object
 		pCECS = &CECS;
-		CECS_Shutdown(pCECS);
 	}
+
+/*	C Version: Any call to Shutdown should be set RefCounter to 0, and thus 
+clean up the memory. For this reason RefCounter should take values 0 and 1. 
+In case value 1 is taken, then no reinitialization is need. This is due to 
+the fact that there are no destructors in C, thus client should have to call 
+Shutdown for any Initialize() (Like in C++ version). However this make it 
+more complex for the client. In C Version client should use Shutdown only when
+CECS-Internal is not going to be used anymore, where in C++ Version Shutdown 
+is called for every Initialize call.
+	C++ Version: As each CECS class destructor calls Shutdown(), the 
+RefCounter must be increased by the number of times a Constructor initialize 
+the CECS-Internal. In this way, when all classes that use CECS-Internal are 
+destructed then the CECS-Internal is free.
+*/
+	#ifndef __cplusplus
+		if (pCECS->RefCounter == 1) return pCECS;
+		pCECS->RefCounter++;
+	#else
+		pCECS->RefCounter++;
+		if (pCECS->RefCounter > 1) return pCECS;
+	#endif
 
 	MaxErrors = pCECS->MaxErrors;
 
@@ -75,9 +88,9 @@ sCECS* CECS_Initialize(char* name, sCECS* pcecs) {
 	}
 
 	if (pCECS->Name == NULL) {
-		pCECS->Name = (char*) calloc(64, sizeof(char));
-		if (name != NULL) snprintf(pCECS->Name, 64, name);
-		else snprintf(pCECS->Name, 64, "CECS-UnNamed");
+		pCECS->Name = (char*) calloc(CECS__ECSNAMELENGTH, sizeof(char));
+		if (name != NULL) snprintf(pCECS->Name, CECS__ECSNAMELENGTH, name);
+		else snprintf(pCECS->Name, CECS__ECSNAMELENGTH, "CECS-UnNamed");
 	}
 
 	if (pCECS->IErrors == NULL)
@@ -115,8 +128,13 @@ sCECS* CECS_Initialize(char* name, sCECS* pcecs) {
 sCECS* CECS_Shutdown(sCECS* pcecs) {
 	int i = 0;
 	int MaxErrors = 0;
-
 	if (pcecs == NULL) pcecs = pCECS;
+	
+	if (pcecs->RefCounter > 0) pcecs->RefCounter--;
+
+	if (pcecs->RefCounter > 0) return pCECS; 
+
+	pcecs->RefCounter = 0;
 
 	MaxErrors = pcecs->MaxErrors;
 
@@ -164,6 +182,15 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	return pCECS;
 }
 
+int CECS_CheckIfInitNoMsg(void) {
+	int isInit = 0;
+	if (pCECS == NULL) { pCECS = &CECS; isInit = -1; }
+	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, pCECS); isInit = -1; }
+	return isInit;
+}
+
+sCECS* CECS_getCecs(void) { return pCECS; }
+
 int CECS_CheckIfInit(const char* msg) {
 	int isInit = 0;
 
@@ -184,7 +211,7 @@ sCECS* CECS_RecErrorMod(
 	int type,
 	const char* fname,
 	const unsigned int line,
-	char* msg,
+	const char* msg,
 	...
 ) {
 	int idx = 0;
@@ -224,7 +251,7 @@ sCECS* CECS_RecError(
 	int type,
 	const char* fname,
 	const unsigned int line,
-	char* msg,
+	const char* msg,
 	...
 ) {
 	sCECS* ret;
@@ -376,11 +403,11 @@ const char* CECS_str(int typeId) {
 
 	if (typeId == _CECS_ERRTYPE_ALL) 
 		snprintf(str, maxstrprint,
-			"------- CECS:: %i Errors of ALL Types recorded! -------\n", NE, typeId
+			"------- %s:: %i Errors of ALL Types recorded! -------\n", pCECS->Name, NE
 		);
 	else
 		snprintf(str, maxstrprint,
-			"------- CECS:: %i Errors of Type {%i} recorded! -------\n", NE, typeId
+			"------- %s:: %i Errors of Type {%i} recorded! -------\n", pCECS->Name, NE, typeId
 		);
 
 	if (NE > 0) {

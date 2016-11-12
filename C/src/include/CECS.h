@@ -24,10 +24,11 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.007)
+#define CECS__VERSION (0.010)
 
 #define CECS__MAXERRORS (64)
 #define CECS__ERRORID (-10000)
+#define CECS__ECSNAMELENGTH (32)
 #define CECS__MODNAMELENGTH (32)
 
 #define CECS__FERRORL (256)
@@ -103,6 +104,7 @@ typedef struct sCECS {
 	int ErrorLength;
 	int MaxErrors;
 	int MaxDisplayStringSize;
+	int RefCounter;
 } sCECS;
 
 /**
@@ -123,7 +125,7 @@ typedef struct sCECS {
  * argument is not NULL, the 'name' argument is used on if the 'pcecs' argument 
  * is pointing to a non-initialized CECS object.
  */
-sCECS* CECS_Initialize(char* name, sCECS* pcecs);
+sCECS* CECS_Initialize(const char* name, sCECS* pcecs);
 
 /**
  *  \brief Cleanup and Resets an CECS object by pointer. If the input pointer 
@@ -140,6 +142,18 @@ sCECS* CECS_Shutdown(sCECS* pcecs);
  *  \return 0-It is already initialized, -1 it was not initialized.
  */
 int CECS_CheckIfInit(const char* msg);
+
+/**
+ *  \brief Check only if the linked CECS object is initialized.
+ *  \return 0-It is already initialized, -1 it was not initialized.
+ */
+int CECS_CheckIfInitNoMsg(void);
+
+/**
+ *  \brief Retrive the pCECS pointer, for sharing purposes.
+ *  \return Return the pCECS pointer.
+ */
+sCECS* CECS_getCecs(void);
 
 /**
  *  \brief Recording an Error in a CECS object using an extra identification 
@@ -161,7 +175,7 @@ sCECS* CECS_RecErrorMod(
 	int type,
 	const char* fname,
 	const unsigned int line,
-	char* msg,
+	const char* msg,
 	...
 );
 
@@ -182,7 +196,7 @@ sCECS* CECS_RecError(
 	int type,
 	const char* fname,
 	const unsigned int line,
-	char* msg,
+	const char* msg,
 	...
 );
 

@@ -46,10 +46,10 @@ int test01(void) {
 /* Testing error recording procedure of different types.
 
 Expected Result:
-        Record: 0: Error during checking: 2293288 > 5!
+        Record: 0: Error during checking: 7 > 5!
         Record: 1: Error  : y is 2 !
         Record: 2: Warning: y is 2 !
-        Record 0 of type Error: Error during checking: 2293288 > 5!
+        Record 0 of type Error: Error during checking: 7 > 5!
         Record 1 of type Error: Error  : y is 2 !
         Record 0 of type Warning: Warning: y is 2 !
 */
@@ -101,16 +101,16 @@ int test02(void) {
 /* Testing Display Macros (without Initialization) >> Display ALL errors
 
 Expected Result:
-------- CECS:: 5 Errors of ALL Types recorded! -------
-[ET:0]-> #Mod-Default: -10000 | [CECS.c], 173:: Çp@: CECS was Not Initialized!
-[ET:0]-> #Mod-Default: -9999 | [t00_test.c], 74:: Error #1
-[ET:1]-> #Mod-Default: -9998 | [t00_test.c], 75:: Warn #2
-[ET:2]-> #Mod-Default: 0 | [t00_test.c], 76:: Info #3
-[ET:4]-> #Mod-Default: 0 | [t00_test.c], 77:: Debug #4
+------- CECS-UnNamed:: 5 Errors of ALL Types recorded! -------
+[ET:0]-> #Mod-Default: -10000 | [CECS.c], 201:: CECS_RecError/Mod(): CECS was Not Initialized!
+[ET:0]-> #Mod-Default: -9999 | [t00_test.c], 116:: CECS_RecError/Mod(): CECS was Not Initialized!
+[ET:1]-> #Mod-Default: -9998 | [t00_test.c], 117:: Warn #2
+[ET:2]-> #Mod-Default: 0 | [t00_test.c], 118:: Info #3
+[ET:4]-> #Mod-Default: 0 | [t00_test.c], 119:: Debug #4
 -------------------------------------------------------
 
 Display Again:
-------- CECS:: 0 Errors of ALL Types recorded! -------
+------- CECS-UnNamed:: 0 Errors of ALL Types recorded! -------
 */
 int test03(void) {
 	CECS_ERR(1,"Error #1");
@@ -134,12 +134,12 @@ int test03(void) {
 /* Testing Display Macros >> Display Info Errors only!
 
 Expected Result:
-------- CECS:: 1 Errors of Type {2} recorded! -------
--> #Mod-Default: 0 | [t00_test.c], 93:: Info #3
+------- MainCECS:: 1 Errors of Type {2} recorded! -------
+-> #Mod-Default: 0 | [t00_test.c], 149:: Info #3
 -------------------------------------------------------
 
 Display Again:
-------- CECS:: 0 Errors of Type {2} recorded! -------
+------- MainCECS:: 0 Errors of Type {2} recorded! -------
 */
 int test04(void) {
 	CECS_Initialize("MainCECS",NULL);
@@ -174,16 +174,17 @@ different Module-Name identifier, thus the errors contains different
 module-names information.
 
 Expected Result:
-------- CECS:: 4 Errors of ALL Types recorded! -------
-[ET:0]-> #Module A: -9999 | [t00_test.c], 122:: Test Error in test05_ModA.
-[ET:0]-> #Module B: -9999 | [t00_test.c], 134:: Test error in test05_ModB.
-[ET:1]-> #Module B: -9998 | [t00_test.c], 135:: Test warning in test05_ModB.
-[ET:1]-> #Module A: -9998 | [t00_test.c], 124:: Test Warning in test05_ModA.
+------- MainCECS-A:: 4 Errors of ALL Types recorded! -------
+[ET:0]-> #Module A: -9999 | [t00_test.c], 189:: Test Error in test05_ModA.
+[ET:0]-> #Module B: -9999 | [t00_test.c], 203:: Test error in test05_ModB.
+[ET:1]-> #Module B: -9998 | [t00_test.c], 204:: Test warning in test05_ModB.
+[ET:1]-> #Module A: -9998 | [t00_test.c], 191:: Test Warning in test05_ModA.
 -------------------------------------------------------
 */
 int test05_ModB(sCECS* cecs);
 int test05_ModA(void) {
-	sCECS* CECS = CECS_Initialize("MainCECS", NULL);
+	// Use CECS-Internal
+	sCECS* CECS = CECS_Initialize("MainCECS-A", NULL);
 	const char CECS_ModName[] = "Module A";
 	CECS_MERR(1,"Test Error in test05_ModA.");
 	test05_ModB(CECS);
@@ -191,11 +192,13 @@ int test05_ModA(void) {
 
 	printf("%s\n", CECS_str(_CECS_ERRTYPE_ALL));
 
+	// Shutdown once to free the used CECS-Internal
 	CECS_Shutdown(NULL);
 	return 0;
 }
 int test05_ModB(sCECS* cecs) {
-	CECS_Initialize("MainCECS", cecs);
+	// Initialize using common CECS-Internal.
+	CECS_Initialize("MainCECS-B", cecs);
 	const char CECS_ModName[] = "Module B";
 	CECS_MERR(1,"Test error in test05_ModB.");
 	CECS_MWARN(1,"Test warning in test05_ModB.");
