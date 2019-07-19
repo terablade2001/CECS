@@ -101,6 +101,28 @@ the function. If need client-specific macros can also be created.
 	CECS_ERRN((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
 
 
+// Using internal error-id
+#define _ERRT(ExpR, args...) CECS_ERRT(__ECSOBJ__, ExpR, args)
+#define _ERR(ExpR, args...) CECS_ERR(__ECSOBJ__, ExpR, args)
+#define _ERRI(ExpR, args...) CECS_ERRI(__ECSOBJ__, ExpR, args)
+#define _ERRN(ExpR, args...) CECS_ERRN(__ECSOBJ__, ExpR, args`
+#define _WARN(ExpR, args...) CECS_WARN(__ECSOBJ__, ExpR, args`
+#define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args`
+#define _DEBUG(ExpR, args...) CECS_DEBUG(__ECSOBJ__, ExpR, args)
+#define _ERRINF(ExpR, args...) CECS_ERRINF(__ECSOBJ__, ExpR, args)
+
+#define _CHECKRT_ CECS_CHECKERRT(__ECSOBJ__)
+#define _CHECKR_ CECS_CHECKERR(__ECSOBJ__)
+#define _CHECKRI_ CECS_CHECKERRI(__ECSOBJ__)
+#define _CHECKRN_ CECS_CHECKERRN(__ECSOBJ__)
+
+
+
+// #define CECS_CHECKERRS(Obj,args...)
+// 	CECS_ERR(Obj,CECS_GetNumberOfErrorsByType(Obj) != 0, args)
+// #define CECS_CHECKERRTS(Obj,args...) \
+// 	CECS_ERRT(Obj,CECS_GetNumberOfErrorsByType(Obj) != 0,args)
+
 class CECSBase {
 public:
 	virtual ~CECSBase() {}
