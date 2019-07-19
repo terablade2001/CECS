@@ -1,6 +1,7 @@
 // MIT License
 
-// Copyright (c) 2016 Vasileios Kon. Pothos (terablade2001)
+// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
+// https://github.com/terablade2001/CECS
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+
 #include "include/CECS.hpp"
+
+using namespace std;
 
 CECSBase::CECSBase():
 	EcsName(NULL),
@@ -61,6 +65,7 @@ void CECS::Shutdown(void) {
 	if (pCECS != NULL) { CECS_Shutdown(pCECS); pCECS = NULL; }
 	if (EcsName != NULL) { free(EcsName); EcsName = NULL; }
 	if (ModName != NULL) { free(ModName); ModName = NULL; }
+	lastErrorMsg.clear();
 }
 
 void CECS::RecError(
@@ -79,17 +84,21 @@ void CECS::RecError(
 
 	CECS_RecErrorMod(
 		const_cast<char*>(ModName),
-		errid, type, fname, line, msg
+		errid, type, fname, line, vaStr
 	);
 }
 
 
 const char* CECS::str(void) {
-	return CECS_str(_CECS_ERRTYPE_ALL);
+	lastErrorMsg.clear();
+	lastErrorMsg.append(CECS_str(_CECS_ERRTYPE_ALL));
+	return lastErrorMsg.c_str();
 }
 
 const char* CECS::str(int typeId) {
-	return CECS_str(typeId);
+	lastErrorMsg.clear();
+	lastErrorMsg.append(CECS_str(typeId));
+	return lastErrorMsg.c_str();
 }
 
 const char* CECS::name(void) {
@@ -98,6 +107,32 @@ const char* CECS::name(void) {
 
 const char* CECS::modname(void) {
 	return ModName;
+}
+
+void CECS::throwErrors(void) {
+	std::stringstream ErrStr;
+	const char* ErrString = str();
+	if (ErrString != NULL) {
+		ErrStr << std::string(ErrString) << endl;
+		throw std::runtime_error(ErrStr.str().c_str());
+	}
+}
+
+void CECS::clearLastErrorMsg(void) {
+	lastErrorMsg.clear();
+}
+
+void CECS::clear(void) {
+	CECS_clear();
+	clearLastErrorMsg();
+}
+
+const char* CECS::getLastErrorMsg(void) {
+	return lastErrorMsg.c_str();
+}
+
+int CECS::GetNumberOfErrors(void){
+	return CECS_GetNumberOfErrorsByType(_CECS_ERRTYPE_ERROR);
 }
 
 sCECS* CECS::cecs(void) {

@@ -1,6 +1,7 @@
 // MIT License
 
-// Copyright (c) 2016 Vasileios Kon. Pothos (terablade2001)
+// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
+// https://github.com/terablade2001/CECS
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.010)
+#define CECS__VERSION (0.012)
 
-#define CECS__MAXERRORS (64)
+#define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
 #define CECS__ECSNAMELENGTH (32)
 #define CECS__MODNAMELENGTH (32)
 
-#define CECS__FERRORL (256)
+#define CECS__FERRORL (512)
 #define CECS__MAXDISPSTRSIZE (CECS__FERRORL * CECS__MAXERRORS + 2)
 
 
@@ -52,6 +52,7 @@
 #define _CECS_ERRTYPE_WARNING (1)
 #define _CECS_ERRTYPE_INFO (2)
 #define _CECS_ERRTYPE_DEBUG (4)
+#define _CECS_ERRTYPE_ERRINFO (5)
 
 // Default Macro-Numbers used in CECS_ERR/WARN/INFO/DEBUG macros.
 #define _CECS_DEFAULT_ERRID (CECS__ERRORID+1)
@@ -73,6 +74,8 @@
 	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
 #define CECS_DEBUG(ExpR, args...) \
 	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+#define CECS_ERRINF(ExpR, args...) \
+	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args);
 
 // Those macros also record Module-Name (which must exist in CECS_ModName[] table).
 #define CECS_MIERR(ExpR, ErrID, args...) \
