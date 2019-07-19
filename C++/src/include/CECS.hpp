@@ -64,6 +64,7 @@ the function. If need client-specific macros can also be created.
 */
 #define __CECS_IRETURN__(ErrID) return (ErrID);
 #define __CECS_RETURN__ return;
+#define __CECS_RETURN_NULL_ return NULL;
 #define __CECS_THROW__(Obj) (Obj).throwErrors();
 
 // Using client error-id
@@ -79,6 +80,8 @@ the function. If need client-specific macros can also be created.
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __CECS_RETURN__ }
 #define CECS_ERRI(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __CECS_IRETURN__(_CECS_DEFAULT_ERRID) }
+#define CECS_ERRN(Obj, ExpR, args...) \
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __CECS_RETURN_NULL_ }
 #define CECS_WARN(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args); }
 #define CECS_INFO(Obj, ExpR, args...) \
@@ -94,6 +97,9 @@ the function. If need client-specific macros can also be created.
 	CECS_ERR((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return executed.")
 #define CECS_CHECKERRI(Obj) \
 	CECS_ERRI((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return executed.")
+#define CECS_CHECKERRN(Obj) \
+	CECS_ERRN((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
+
 
 class CECSBase {
 public:
@@ -124,8 +130,8 @@ protected:
 class CECS : private CECSBase {
 public:
 	CECS();
-	CECS(char* ecsName, char* modName = NULL, sCECS* cecs = NULL);
-	CECS(const char* ecsName, const char* modName = NULL, sCECS* cecs = NULL);
+	CECS(char* modName, char* ecsName = NULL, sCECS* cecs = NULL);
+	CECS(const char* modName, const char* ecsName = NULL, sCECS* cecs = NULL);
 	~CECS();
 
 	void Initialize(char* ecsName, char* modName = NULL, sCECS* cecs = NULL);

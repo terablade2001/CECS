@@ -34,24 +34,26 @@ CECSBase::CECSBase():
 CECS::CECS() { Initialize(NULL, NULL, NULL); }
 CECS::~CECS() { Shutdown(); }
 
-CECS::CECS(const char* ecsName, const char* modName, sCECS* cecs) {
+CECS::CECS(const char* modName, const char* ecsName, sCECS* cecs) {
 	Initialize(const_cast<char*>(ecsName), const_cast<char*>(modName), cecs);
 }
-CECS::CECS(char* ecsName, char* modName, sCECS* cecs) {
+CECS::CECS(char* modName, char* ecsName, sCECS* cecs) {
 	Initialize(ecsName, modName, cecs);
 }
 
 void CECS::Initialize(char* ecsName, char* modName, sCECS* cecs) {
 	Shutdown();
+
 	EcsName = (char*)malloc(CECS__ECSNAMELENGTH * sizeof(char));
-	if (ecsName != NULL) snprintf(EcsName, CECS__ECSNAMELENGTH, "%s", modName);
-	else snprintf(EcsName, CECS__ECSNAMELENGTH, "CECS-UnNamed");
+	if (ecsName != NULL) snprintf(EcsName, CECS__ECSNAMELENGTH, "%s", ecsName);
+	else snprintf(EcsName, CECS__ECSNAMELENGTH, "CECS-Default");
 
 	ModName = (char*)malloc(CECS__MODNAMELENGTH * sizeof(char));
 	if (modName != NULL) snprintf(ModName, CECS__MODNAMELENGTH, "%s", modName);
 	else snprintf(ModName, CECS__MODNAMELENGTH, "ModDefault");
+	const int replaceName = (ecsName != NULL) ? 1 : 0;
 
-	pCECS = CECS_Initialize(ecsName, cecs);
+	pCECS = CECS_Initialize(EcsName, cecs, replaceName);
 }
 
 void CECS::ReInitIfDead(void) {

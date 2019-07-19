@@ -45,7 +45,7 @@ static sCECS CECS = {
 };
 
 
-sCECS* CECS_Initialize(const char* name, sCECS* pcecs) {
+sCECS* CECS_Initialize(const char* name, sCECS* pcecs, int replaceName) {
 	int i = 0;
 	int MaxErrors = 0;
 
@@ -54,6 +54,16 @@ sCECS* CECS_Initialize(const char* name, sCECS* pcecs) {
 		pCECS = pcecs;
 	} else { // Initialize using the internal CECS object.
 		pCECS = &CECS;
+	}
+
+	// CECS name should be able to change if replaceName is set.
+	if (pCECS->Name == NULL) {
+		pCECS->Name = (char*) calloc(CECS__ECSNAMELENGTH, sizeof(char));
+		replaceName = 1;
+	}
+	if (replaceName != 0) {
+		if (name != NULL) snprintf(pCECS->Name, CECS__ECSNAMELENGTH, "%s", name);
+		else snprintf(pCECS->Name, CECS__ECSNAMELENGTH, "CECS-UnNamed");
 	}
 
 /*	C Version: Any call to Shutdown should be set RefCounter to 0, and thus 
@@ -87,12 +97,6 @@ destructed then the CECS-Internal is free.
 		for (i = 0; i < MaxErrors; i++) {
 			pCECS->SErrors[i] = (char*) calloc(pCECS->ErrorLength, sizeof(char));
 		}
-	}
-
-	if (pCECS->Name == NULL) {
-		pCECS->Name = (char*) calloc(CECS__ECSNAMELENGTH, sizeof(char));
-		if (name != NULL) snprintf(pCECS->Name, CECS__ECSNAMELENGTH, "%s", name);
-		else snprintf(pCECS->Name, CECS__ECSNAMELENGTH, "CECS-UnNamed");
 	}
 
 	if (pCECS->IErrors == NULL)
@@ -187,7 +191,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 int CECS_CheckIfInitNoMsg(void) {
 	int isInit = 0;
 	if (pCECS == NULL) { pCECS = &CECS; isInit = -1; }
-	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, pCECS); isInit = -1; }
+	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, pCECS, 0); isInit = -1; }
 	return isInit;
 }
 
@@ -197,7 +201,7 @@ int CECS_CheckIfInit(const char* msg) {
 	int isInit = 0;
 
 	if (pCECS == NULL) { pCECS = &CECS; isInit = -1; }
-	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, pCECS); isInit = -1; }
+	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, pCECS, 0); isInit = -1; }
 	if (isInit == -1) {
 		CECS_RecError(
 			CECS__ERRORID, 0, __FNAME__, __LINE__,
@@ -391,7 +395,7 @@ unsigned int CECS_getErrorLine(int id) {
 
 const char* CECS_getName(void) {
 	if (pCECS == NULL) pCECS = &CECS;
-	if (pCECS->Name == NULL) CECS_Initialize(NULL, NULL);
+	if (pCECS->Name == NULL) CECS_Initialize(NULL, NULL, 0);
 	return (const char*)pCECS->Name;
 }
 
