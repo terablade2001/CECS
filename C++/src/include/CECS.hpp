@@ -82,6 +82,10 @@ the function. If need client-specific macros can also be created.
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __CECS_IRETURN__(_CECS_DEFAULT_ERRID) }
 #define CECS_ERRN(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __CECS_RETURN_NULL_ }
+#define CECS_ERRL(Obj, ExpR, args...) \
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); }
+#define CECS_ERRO(Obj, ExpR, __UserReturn__, args...) \
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __UserReturn__ }
 #define CECS_WARN(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args); }
 #define CECS_INFO(Obj, ExpR, args...) \
@@ -99,15 +103,19 @@ the function. If need client-specific macros can also be created.
 	CECS_ERRI((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return executed.")
 #define CECS_CHECKERRN(Obj) \
 	CECS_ERRN((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
-
-
+#define CECS_CHECKERRL(Obj) \
+	CECS_ERRL((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
+#define CECS_CHECKERRO(Obj, __UserReturn__) \
+	CECS_ERRO((Obj), (Obj).GetNumberOfErrors() != 0, __UserReturn__, "CECS_CHECKERROR captured: __UserReturn__ code executed!.")
 // Using internal error-id
 #define _ERRT(ExpR, args...) CECS_ERRT(__ECSOBJ__, ExpR, args)
 #define _ERR(ExpR, args...) CECS_ERR(__ECSOBJ__, ExpR, args)
 #define _ERRI(ExpR, args...) CECS_ERRI(__ECSOBJ__, ExpR, args)
-#define _ERRN(ExpR, args...) CECS_ERRN(__ECSOBJ__, ExpR, args`
-#define _WARN(ExpR, args...) CECS_WARN(__ECSOBJ__, ExpR, args`
-#define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args`
+#define _ERRN(ExpR, args...) CECS_ERRN(__ECSOBJ__, ExpR, args)
+#define _ERRL(ExpR, args...) CECS_ERRL(__ECSOBJ__, ExpR, args)
+#define _ERRO(ExpR, __UserReturn__, args...) CECS_ERRO(__ECSOBJ__, ExpR, __UserReturn__, args)
+#define _WARN(ExpR, args...) CECS_WARN(__ECSOBJ__, ExpR, args)
+#define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args)
 #define _DEBUG(ExpR, args...) CECS_DEBUG(__ECSOBJ__, ExpR, args)
 #define _ERRINF(ExpR, args...) CECS_ERRINF(__ECSOBJ__, ExpR, args)
 
@@ -115,13 +123,9 @@ the function. If need client-specific macros can also be created.
 #define _CHECKR_ CECS_CHECKERR(__ECSOBJ__)
 #define _CHECKRI_ CECS_CHECKERRI(__ECSOBJ__)
 #define _CHECKRN_ CECS_CHECKERRN(__ECSOBJ__)
+#define _CHECKRL_ CECS_CHECKERRL(__ECSOBJ__)
+#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
 
-
-
-// #define CECS_CHECKERRS(Obj,args...)
-// 	CECS_ERR(Obj,CECS_GetNumberOfErrorsByType(Obj) != 0, args)
-// #define CECS_CHECKERRTS(Obj,args...) \
-// 	CECS_ERRT(Obj,CECS_GetNumberOfErrorsByType(Obj) != 0,args)
 
 class CECSBase {
 public:

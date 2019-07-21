@@ -1,64 +1,63 @@
-// MIT License
+#include "CECS/include/CECS.hpp"
 
-// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
-// https://github.com/terablade2001/CECS
-
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
-// EXPECTED RESULTS:
-// //////////////////////////////////////////////////////////////////////////////
-// (*) Exception occured:
-//   --> ------- ECS:: 2 Errors of ALL Types recorded! -------
-// [ET:2]-> #Main: 0 | [main.cpp], 53:: Testing the ECS
-// [ET:0]-> #Main: -9999 | [main.cpp], 47:: Error! variable[x] has value (5).
-// -------------------------------------------------------
-// 
-// 
-// Now get again the recorded ERRORS only as an external user:
-// ------- ECS:: 1 Errors of Type {0} recorded! -------
-// -> #Main: -9999 | [main.cpp], 47:: Error! variable[x] has value (5).
-// -------------------------------------------------------
-// //////////////////////////////////////////////////////////////////////////////
-
-
-#include "include/CECS.hpp"
+#define __ECSOBJ__ ECS
+static CECS ECS("Main-Module","Main-CECS");
 using namespace std;
 
-CECS ECS("ECS","Main");
 
-void throwError() {
-	int x = 5;
-	CECS_ERR(ECS, x == 5, "Error! variable[x] has value (%i).", x)
+
+int TableAt = 1;
+
+
+
+int TableIsAt(int _tableat) {
+	_ERRI((_tableat < 0) || (_tableat > 2),"TableIsAt():: Works only for input 0, 1 or 2. Got input = (%i)",_tableat)
+	_ERRL(_tableat==0,"TableIsAt():: Zero value for table!")
+	_ERRO(_tableat==2,  { cout<<"User Code Executed!"<<endl; return 8; }, "TableIsAt():: User code execution detected!")
+	return 7;
 }
+
+
+
+int PersonIsInTable(const char* name) {
+	string namestr(name);
+	_ERRI(namestr.compare("Vasileios"),"Unknown name on tables!")
+	int TableNo = TableIsAt(TableAt);
+	_ERRI(TableNo < 0,"Wrong position of Table given the person [%s]",name)
+	_WARN(TableNo==8, "Warning: TableId == 8!")
+	_CHECKRI_
+	return TableNo;
+}
+
+
+
+const char* BallIsInHandsOf(const string& nickname) {
+	_ERRN(nickname.compare("terablade2001"),"Unknown nickname (%s)",nickname.c_str())
+	static string name("Vasileios");
+	
+	int TableNo = PersonIsInTable(name.c_str());
+	_ERRN(TableNo < 0,"Return of PersonIsInTable(%s) was negative",nickname.c_str())
+	return name.c_str();
+}
+
+
+
+void FindTheBall() {
+	const string nickname("terablade2001");
+	const char* name = BallIsInHandsOf(nickname);
+	_ERRT(name == NULL,"Return of BallIsInHandsOf() is NULL!")
+	cout << "The ball is at person ["<< name << "]" << endl;
+}
+
+
 
 int main(int argc, char **argv)
 {
 	try {
-		CECS_INFO(ECS, true, "Testing the ECS")
-		throwError();
-		cout << "This message should NOT be shown!" << endl;
+		FindTheBall();
+		_CHECKRT_
+		cout << "Test Completed Succesfully!" << endl;
 	} catch(std::exception &e) {
-   std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << "  --> " << e.what() << std::endl;
+		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << "  --> " << e.what() << std::endl;
 	}
-	
-	cout << "Now get again the recorded ERRORS only as an external user:" << endl;
-	const int ET = 0; // Error Type = ERROR
-	string Errors(ECS.str(ET));
-	cout << Errors << endl;
 }
