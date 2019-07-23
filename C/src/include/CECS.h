@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.015)
+#define CECS__VERSION (0.016)
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
@@ -42,7 +42,8 @@
 #include <stdarg.h>
 
 #ifndef __FNAME__
-	#define __FNAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+	#define __FNAMEBSL__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+	#define __FNAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FNAMEBSL__ )
 #endif
 
 
