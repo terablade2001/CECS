@@ -34,15 +34,15 @@ CECSBase::CECSBase():
 CECS::CECS() { Initialize(NULL, NULL, NULL); }
 CECS::~CECS() { Shutdown(); }
 
-CECS::CECS(const char* modName, const char* ecsName, sCECS* cecs) {
+CECS::CECS(const char* modName, const char* ecsName, void* cecs) {
 	Initialize(const_cast<char*>(ecsName), const_cast<char*>(modName), cecs);
 }
-CECS::CECS(char* modName, char* ecsName, sCECS* cecs) {
+CECS::CECS(char* modName, char* ecsName, void* cecs) {
 	Initialize(ecsName, modName, cecs);
 }
 
-void CECS::Initialize(char* ecsName, char* modName, sCECS* cecs) {
-	Shutdown();
+void CECS::Initialize(char* ecsName, char* modName, void* cecs) {
+	if (pCECS != NULL) return;
 
 	EcsName = (char*)malloc(CECS__ECSNAMELENGTH * sizeof(char));
 	if (ecsName != NULL) snprintf(EcsName, CECS__ECSNAMELENGTH, "%s", ecsName);
@@ -53,12 +53,17 @@ void CECS::Initialize(char* ecsName, char* modName, sCECS* cecs) {
 	else snprintf(ModName, CECS__MODNAMELENGTH, "ModDefault");
 	const int replaceName = (ecsName != NULL) ? 1 : 0;
 
-	pCECS = CECS_Initialize(EcsName, cecs, replaceName);
+	pCECS = CECS_Initialize(EcsName, (sCECS*)cecs, replaceName);
+}
+
+void CECS::ConnectTo(void* cecs) {
+	if (cecs == NULL) return;
+	pCECS = CECS_Initialize(EcsName, (sCECS*)cecs, 0);
 }
 
 void CECS::ReInitIfDead(void) {
 	// Class has been initialized, but CECS global object has been shutdown..
-	if ((pCECS != NULL) && (CECS_CheckIfInitNoMsg() != 0)) {
+	if ((pCECS != NULL) && (CECS_CheckIfInitNoMsg(pCECS) != 0)) {
 		Initialize(EcsName, ModName, NULL); // Then Initialize and grab mainObj.
 	}
 }
@@ -84,7 +89,7 @@ void CECS::RecError(
 	vsnprintf(vaStr, CECS__FERRORL, msg, vargs);
 	va_end(vargs);
 
-	CECS_RecErrorMod(
+	CECS_RecErrorMod(pCECS,
 		const_cast<char*>(ModName),
 		errid, type, fname, line, vaStr
 	);
@@ -92,19 +97,19 @@ void CECS::RecError(
 
 
 const char* CECS::str(void) {
-	lastErrorMsg.clear();
-	lastErrorMsg.append(CECS_str(_CECS_ERRTYPE_ALL));
+	// lastErrorMsg.clear();
+	lastErrorMsg.append(CECS_str(pCECS, _CECS_ERRTYPE_ALL));
 	return lastErrorMsg.c_str();
 }
 
 const char* CECS::str(int typeId) {
-	lastErrorMsg.clear();
-	lastErrorMsg.append(CECS_str(typeId));
+	// lastErrorMsg.clear();
+	lastErrorMsg.append(CECS_str(pCECS, typeId));
 	return lastErrorMsg.c_str();
 }
 
 const char* CECS::name(void) {
-	return CECS_getName();
+	return CECS_getName(pCECS);
 }
 
 const char* CECS::modname(void) {
@@ -125,7 +130,7 @@ void CECS::clearLastErrorMsg(void) {
 }
 
 void CECS::clear(void) {
-	CECS_clear();
+	CECS_clear(pCECS);
 	clearLastErrorMsg();
 }
 
@@ -134,9 +139,10 @@ const char* CECS::getLastErrorMsg(void) {
 }
 
 int CECS::GetNumberOfErrors(void){
-	return CECS_GetNumberOfErrorsByType(_CECS_ERRTYPE_ERROR);
+	return CECS_GetNumberOfErrorsByType(pCECS, _CECS_ERRTYPE_ERROR);
 }
 
-sCECS* CECS::cecs(void) {
-	return pCECS;
+void* CECS::cecs(void) {
+	if (pCECS == NULL) Initialize(NULL, NULL, NULL);
+	return (void*)pCECS;
 }

@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.016)
+#define CECS__VERSION (0.100)
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
@@ -62,36 +62,36 @@
 #define _CECS_DEFAULT_DEBUGID (0)
 
 // User short-code macros
-#define CECS_IERR(ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecError((ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_IWARN(ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecError((ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#define CECS_IERR(ecsptr, ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_IWARN(ecsptr, ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
 
-#define CECS_ERR(ExpR, args...) \
-	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_WARN(ExpR, args...) \
-	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
-#define CECS_INFO(ExpR, args...) \
-	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
-#define CECS_DEBUG(ExpR, args...) \
-	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
-#define CECS_ERRINF(ExpR, args...) \
-	if ((ExpR)) CECS_RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args);
+#define CECS_ERR(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_WARN(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#define CECS_INFO(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
+#define CECS_DEBUG(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+#define CECS_ERRINF(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args);
 
 // Those macros also record Module-Name (which must exist in CECS_ModName[] table).
-#define CECS_MIERR(ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_MIWARN(ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#define CECS_MIERR(ecsptr, ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_MIWARN(ecsptr, ExpR, ErrID, args...) \
+	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
 
-#define CECS_MERR(ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_MWARN(ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
-#define CECS_MINFO(ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
-#define CECS_MDEBUG(ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod(CECS_ModName, _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+#define CECS_MERR(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+#define CECS_MWARN(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#define CECS_MINFO(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
+#define CECS_MDEBUG(ecsptr, ExpR, args...) \
+	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
 
 typedef struct sCECS {
 	char* Name;
@@ -143,28 +143,32 @@ sCECS* CECS_Shutdown(sCECS* pcecs);
 /**
  *  \brief Check if the linked CECS object is initialized. If not initialize 
  * it and add an error to it.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] msg A string identifier to used in case of error.
- *  \return 0-It is already initialized, -1 it was not initialized.
+ *  \return The pointer to the Linked CECS object.
  */
-int CECS_CheckIfInit(const char* msg);
+sCECS* CECS_CheckIfInit(sCECS* pcecs, const char* msg);
 
 /**
  *  \brief Check only if the linked CECS object is initialized.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \return 0-It is already initialized, -1 it was not initialized.
  */
-int CECS_CheckIfInitNoMsg(void);
+int CECS_CheckIfInitNoMsg(sCECS* pcecs);
 
 /**
  *  \brief Retrive the pCECS pointer, for sharing purposes.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \return Return the pCECS pointer.
  */
-sCECS* CECS_getCecs(void);
+sCECS* CECS_getCecs(sCECS* pcecs);
 
 /**
  *  \brief Recording an Error in a CECS object using an extra identification 
  *  flag called "modName". If not Linked object exist, then it uses the 
  *  internal CECS object. If the used CECS object is not initialized, then it 
  *  also initialize it.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] ModName Module Name (for further identification)
  *  \param [in] errid An error id number.
  *  \param [in] type A number indicating the type of the error (i.e. 0-Error, 1-Warning, 2-Info etc)
@@ -175,6 +179,7 @@ sCECS* CECS_getCecs(void);
  *   \return The pointer to the Linked CECS object.
  */
 sCECS* CECS_RecErrorMod(
+	sCECS* pcecs,
 	const char* modName,
 	int errid,
 	int type,
@@ -188,6 +193,7 @@ sCECS* CECS_RecErrorMod(
  *  \brief Recording an Error in a CECS object. If not Linked object exist, 
  * then it uses the internal CECS object. If the used CECS object is not 
  * initialized, then it also initialize it.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] errid An error id number.
  *  \param [in] type A number indicating the type of the error (i.e. 0-Error, 1-Warning, 2-Info etc)
  *  \param [in] fname Filename where error occurred (i.e. use __FNAME__ macro)
@@ -197,6 +203,7 @@ sCECS* CECS_RecErrorMod(
  *   \return The pointer to the Linked CECS object.
  */
 sCECS* CECS_RecError(
+	sCECS* pcecs,
 	int errid,
 	int type,
 	const char* fname,
@@ -207,89 +214,101 @@ sCECS* CECS_RecError(
 
 /**
  *  \brief Returns number of recorded errors/events in the table.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \return The number of records.
  */
-int CECS_GetNumberOfAllErrors(void);
+int CECS_GetNumberOfAllErrors(sCECS* pcecs);
 
 /**
  *  \brief Returns number of recorded errors/events in the table of specific 
  *  type.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] typeId A number representing the Type of the error.
  *  \return The number of records of specific type.
  */
-int CECS_GetNumberOfErrorsByType(int typeId);
+int CECS_GetNumberOfErrorsByType(sCECS* pcecs, int typeId);
 
 /**
  *  \brief Returns the IDs of recorded errors, for a specific type, thus the 
  *  client to be able to read only the errors of the specific type by using 
  *  the corresponding functions CECS_getErrorStr/Id/Type/File/Line/Name().
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] typeId A number representing the Type of the error.
  *  \param [out] NErr Number of recorded errors of specific type.
  *  \return Pointer to table with error IDs of the specific type.
  */
-int* CECS_GetErrorsIDsByType(int typeId, int* NErr);
+int* CECS_GetErrorsIDsByType(sCECS* pcecs, int typeId, int* NErr);
 
 /**
  *  \brief Returns an error message based on it's id (First error occuring is 
  * recorded with id 0)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error message to be returned.
  *  \return The error's message string.
  */
-const char* CECS_getErrorStr(int id);
+const char* CECS_getErrorStr(sCECS* pcecs, int id);
 /**
  *  \brief Returns an ErrorID based on it's id (First error occuring is 
  * recorded with id 0)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error ErrorID to be returned.
  *  \return The ErrorId
  */
-int CECS_getErrorId(int id);
+int CECS_getErrorId(sCECS* pcecs, int id);
 /**
  *  \brief Returns an error Type based on it's id (First error occuring is 
  * recorded with id 0)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Type to be returned.
  *  \return The Type
  */
-int CECS_getErrorType(int id);
+int CECS_getErrorType(sCECS* pcecs, int id);
 /**
  *  \brief Returns an error Filename (where the error was occured) based on 
  * it's id (First error occuring is recorded with id 0)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Filename to be returned.
  *  \return The filename
  */
-const char* CECS_getErrorFile(int id);
+const char* CECS_getErrorFile(sCECS* pcecs, int id);
 /**
  *  \brief Returns an error source-code line (where the error was occured) 
  * based on it's id (First error occuring is recorded with id 0)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Line to be returned.
  *  \return The line
  */
-unsigned int CECS_getErrorLine(int id);
+unsigned int CECS_getErrorLine(sCECS* pcecs, int id);
 /**
  *  \brief Returns an error Module-name (where the error was occured) based on 
  * it's id (First error occuring is recorded with id 0)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Module name to be returned.
  *  \return The Module name
  */
-const char* CECS_getErrorMod(int id);
+const char* CECS_getErrorMod(sCECS* pcecs, int id);
 
 /**
  *  \brief Returns the name of the linked CECS object (for identification 
  * reasons)
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \return The name of the CECS linked object.
  */
-const char* CECS_getName(void);
+const char* CECS_getName(sCECS* pcecs);
 
 /**
  *  \brief Formatted display of all recorded errors
+ *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] typeId A number representing the Type of the error.
  *  \return A pointer to character sequence with the formated errors.
  */
-const char* CECS_str(int typeId);
+const char* CECS_str(sCECS* pcecs, int typeId);
 
 /**
  *  \brief Clears the recorded errors from the error table.
+ *  \param [in] pcecs Pointer to Linked CECS object.
  */
-void CECS_clear(void);
+void CECS_clear(sCECS* pcecs);
 
 
 

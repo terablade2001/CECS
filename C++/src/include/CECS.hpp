@@ -130,7 +130,8 @@ the function. If need client-specific macros can also be created.
 class CECSBase {
 public:
 	virtual ~CECSBase() {}
-	virtual void Initialize(char* ecsName, char* modName = NULL, sCECS* cecs = NULL) = 0;
+	virtual void Initialize(char* ecsName, char* modName = NULL, void* cecs = NULL) = 0;
+	virtual void ConnectTo(void* cecs) = 0;
 	virtual void ReInitIfDead(void) = 0;
 	virtual void Shutdown(void) = 0;
 	virtual void RecError(int errid, int type, const char* fname,
@@ -144,7 +145,7 @@ public:
 	virtual void clear(void) = 0;
 	virtual const char* getLastErrorMsg(void) = 0;
 	virtual int GetNumberOfErrors(void) = 0;
-	virtual sCECS* cecs(void) = 0;
+	virtual void* cecs(void) = 0;
 protected:
 	CECSBase();
 	char* EcsName;
@@ -156,11 +157,12 @@ protected:
 class CECS : private CECSBase {
 public:
 	CECS();
-	CECS(char* modName, char* ecsName = NULL, sCECS* cecs = NULL);
-	CECS(const char* modName, const char* ecsName = NULL, sCECS* cecs = NULL);
+	CECS(char* modName, char* ecsName = NULL, void* cecs = NULL);
+	CECS(const char* modName, const char* ecsName = NULL, void* cecs = NULL);
 	~CECS();
 
-	void Initialize(char* ecsName, char* modName = NULL, sCECS* cecs = NULL);
+	void Initialize(char* ecsName, char* modName = NULL, void* cecs = NULL);
+	void ConnectTo(void* cecs);
 	void ReInitIfDead(void);
 	void Shutdown(void);
 	void RecError(
@@ -180,7 +182,7 @@ public:
 	void clear(void);
 	const char* getLastErrorMsg(void);
 	int GetNumberOfErrors(void);
-	sCECS* cecs(void);
+	void* cecs(void);
 };
 
 
