@@ -405,6 +405,7 @@ const char* CECS_getName(sCECS* pcecs) {
 }
 
 const char* CECS_str(sCECS* pcecs, int typeId) {
+	static char lstr[CECS__FERRORL] = {0};
 	int i; int NE; int* IndxE;
 	unsigned char FS;
 	CECS_CheckIfInit(pcecs, "CECS_str()");
@@ -456,23 +457,33 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 				}
 				#undef ars
 				#undef arsz
-				snprintf(str, maxstrprint, "%s[%s]> ", str, serrtype);
+				snprintf(lstr, (CECS__FERRORL-1), "[%s]> ",serrtype);
+				strncat(str,lstr, maxstrprint);
 			}
 
-			if (FS & 0x20)
-				snprintf(str, maxstrprint, "%s#%s: ", str, CECS_getErrorMod(pCECS, IDX));
-			if (FS & 0x01)
-				snprintf(str, maxstrprint, "%s%i | ", str, CECS_getErrorId(pCECS, IDX));
-			if (FS & 0x04)
-				snprintf(str, maxstrprint, "%s[%s], ", str, CECS_getErrorFile(pCECS, IDX));
-			if (FS & 0x08)
-				snprintf(str, maxstrprint, "%s%i |> ", str, CECS_getErrorLine(pCECS, IDX));
-			if (FS & 0x10)
-				snprintf(str, maxstrprint, "%s%s", str, CECS_getErrorStr(pCECS, IDX));
-			snprintf(str, maxstrprint, "%s\n",str);
+			if (FS & 0x20) {
+				snprintf(lstr, (CECS__FERRORL-1), "#%s: ",CECS_getErrorMod(pCECS, IDX));
+				strncat(str,lstr, maxstrprint);
+			}
+			if (FS & 0x01) {
+				snprintf(lstr, (CECS__FERRORL-1), "%i | ",CECS_getErrorId(pCECS, IDX));
+				strncat(str,lstr, maxstrprint);
+			}
+			if (FS & 0x04) {
+				snprintf(lstr, (CECS__FERRORL-1), "[%s], ",CECS_getErrorFile(pCECS, IDX));
+				strncat(str,lstr, maxstrprint);
+			}
+			if (FS & 0x08){
+				snprintf(lstr, (CECS__FERRORL-1), "%i |> ",CECS_getErrorLine(pCECS, IDX));
+				strncat(str,lstr, maxstrprint);
+			}
+			if (FS & 0x10){
+				snprintf(lstr, (CECS__FERRORL-1), "%s",CECS_getErrorStr(pCECS, IDX));
+				strncat(str,lstr, maxstrprint);
+			}
+			strncat(str,"\n",maxstrprint);
 		}
-		snprintf(str, maxstrprint,
-			"%s-------------------------------------------------------\n",str);
+		strncat(str,"-------------------------------------------------------\n",maxstrprint);
 	}
 	// CECS_clear();
 	return str;
