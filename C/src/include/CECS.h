@@ -24,7 +24,9 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.101)
+#define CECS__VERSION (0.102)
+
+#define ENABLE_PTHREAD_SUPPORT
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
@@ -40,6 +42,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#ifdef ENABLE_PTHREAD_SUPPORT
+	#include <pthread.h>
+#endif
 
 #ifndef __FNAME__
 	#define __FNAMEBSL__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
@@ -109,7 +114,12 @@ typedef struct sCECS {
 	int MaxErrors;
 	int MaxDisplayStringSize;
 	int RefCounter;
+	pthread_mutex_t q_mtx;
 } sCECS;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  *  \brief Initialize the CECS object. Multiple CECS objects can exist in a 
@@ -311,5 +321,8 @@ const char* CECS_str(sCECS* pcecs, int typeId);
 void CECS_clear(sCECS* pcecs);
 
 
+#ifdef __cplusplus
+} // extern "C" {
+#endif
 
 #endif

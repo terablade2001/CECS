@@ -41,9 +41,13 @@ static sCECS CECS = {
 	.ErrorLength = CECS__FERRORL,
 	.MaxErrors = CECS__MAXERRORS,
 	.MaxDisplayStringSize = CECS__MAXDISPSTRSIZE,
-	.RefCounter = 0
+	.RefCounter = 0,
+	.q_mtx = PTHREAD_MUTEX_INITIALIZER
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 sCECS* CECS_Initialize(const char* name, sCECS* pcecs, int replaceName) {
 	int i = 0;
@@ -125,7 +129,6 @@ destructed then the CECS-Internal is free.
 		for (int i = 0; i < MaxErrors; i++)
 			pCECS->MErrors[i] = (char*)calloc(CECS__MODNAMELENGTH, sizeof(char));
 	}
-
 	return pCECS;
 }
 
@@ -138,7 +141,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	
 	if (pcecs->RefCounter > 0) pcecs->RefCounter--;
 
-	if (pcecs->RefCounter > 0) return pCECS; 
+	if (pcecs->RefCounter > 0) return pCECS;
 
 	pcecs->RefCounter = 0;
 
@@ -228,6 +231,9 @@ sCECS* CECS_RecErrorMod(
 	int idx = 0;
 	unsigned char FS = 0;
 	pCECS = CECS_CheckIfInit(pcecs, "CECS_RecError/Mod()");
+	#ifdef ENABLE_PTHREAD_SUPPORT
+		pthread_mutex_lock(&pCECS->q_mtx);
+	#endif
 	if (pCECS->NErrors < pCECS->MaxErrors-1) {
 		idx = pCECS->NErrors++;
 		FS = pCECS->SetupFlag;
@@ -254,6 +260,9 @@ sCECS* CECS_RecErrorMod(
 		if (FS & 0x20)
 			strncpy(pCECS->MErrors[idx], modName, CECS__MODNAMELENGTH);
 	}
+	#ifdef ENABLE_PTHREAD_SUPPORT
+		pthread_mutex_unlock(&pCECS->q_mtx);
+	#endif
   return pCECS;
 }
 
@@ -267,7 +276,11 @@ sCECS* CECS_RecError(
 	...
 ) {
 	sCECS* ret;
-	static char vaStr[CECS__FERRORL]={0};
+	#ifdef ENABLE_PTHREAD_SUPPORT
+		char vaStr[CECS__FERRORL]={0};
+	#else
+		static char vaStr[CECS__FERRORL]={0};
+	#endif
 	va_list(vargs);
 	va_start(vargs, msg);
 	vsnprintf(vaStr, CECS__FERRORL, msg, vargs);
@@ -493,3 +506,7 @@ void CECS_clear(sCECS* pcecs) {
 	CECS_CheckIfInit(pcecs, "CECS_str()");
 	pCECS->NErrors = 0;
 }
+
+#ifdef __cplusplus
+} // extern "C" {
+#endif

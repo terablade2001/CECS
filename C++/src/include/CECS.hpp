@@ -38,7 +38,9 @@
 
 
 #ifndef __CECS__HEADER__
+extern "C" {
 	#include "CECS.h"
+}
 #endif
 #undef CECS_IERR
 #undef CECS_IWARN
@@ -140,7 +142,7 @@ public:
 	virtual const char* str(int typeId) = 0;
 	virtual const char* name(void) = 0;
 	virtual const char* modname(void) = 0;
-	virtual void throwErrors(void) = 0;
+	virtual void throwErrors(int type=_CECS_ERRTYPE_ALL) = 0;
 	virtual void clearLastErrorMsg(void) = 0;
 	virtual void clear(void) = 0;
 	virtual const char* getLastErrorMsg(void) = 0;
@@ -177,7 +179,7 @@ public:
 	const char* str(int typeId);
 	const char* name(void);
 	const char* modname(void);
-	void throwErrors(void);
+	void throwErrors(int type=_CECS_ERRTYPE_ALL);
 	void clearLastErrorMsg(void);
 	void clear(void);
 	const char* getLastErrorMsg(void);

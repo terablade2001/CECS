@@ -83,7 +83,11 @@ void CECS::RecError(
 	const char* msg,
 	...
 ) {
-	static char vaStr[CECS__FERRORL]={0};
+	#ifdef ENABLE_PTHREAD_SUPPORT
+		char vaStr[CECS__FERRORL]={0};
+	#else
+		static char vaStr[CECS__FERRORL]={0};
+	#endif
 	va_list(vargs);
 	va_start(vargs, msg);
 	vsnprintf(vaStr, CECS__FERRORL, msg, vargs);
@@ -91,7 +95,7 @@ void CECS::RecError(
 
 	CECS_RecErrorMod(pCECS,
 		const_cast<char*>(ModName),
-		errid, type, fname, line, vaStr
+		errid, type, fname, line, const_cast<char*>(vaStr)
 	);
 }
 
@@ -116,9 +120,9 @@ const char* CECS::modname(void) {
 	return ModName;
 }
 
-void CECS::throwErrors(void) {
+void CECS::throwErrors(int type) {
 	std::stringstream ErrStr;
-	const char* ErrString = str();
+	const char* ErrString = str(type);
 	if (ErrString != NULL) {
 		ErrStr << std::string(ErrString) << endl;
 		throw std::runtime_error(ErrStr.str().c_str());
