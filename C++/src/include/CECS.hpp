@@ -96,6 +96,12 @@ the function. If need client-specific macros can also be created.
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args); }
 #define CECS_ERRINF(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args); }
+#define CECS_WARNO(Obj, ExpR, __UserReturn__, args...) \
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args); __UserReturn__ }
+#define CECS_INFOO(Obj, ExpR, __UserReturn__, args...) \
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args); __UserReturn__ }
+#define CECS_DEBUGO(Obj, ExpR, __UserReturn__, args...) \
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args); __UserReturn__ }
 
 #define CECS_CHECKERRT(Obj) \
 	CECS_ERRT((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function throw executed.")
@@ -120,6 +126,9 @@ the function. If need client-specific macros can also be created.
 #define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args)
 #define _DEBUG(ExpR, args...) CECS_DEBUG(__ECSOBJ__, ExpR, args)
 #define _ERRINF(ExpR, args...) CECS_ERRINF(__ECSOBJ__, ExpR, args)
+#define _WARNO(ExpR, __UserReturn__, args...) CECS_WARNO(__ECSOBJ__, ExpR, __UserReturn__, args)
+#define _INFOO(ExpR, __UserReturn__, args...) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args)
+#define _DEBUGO(ExpR, __UserReturn__, args...) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args)
 
 #define _CHECKRT_ CECS_CHECKERRT(__ECSOBJ__)
 #define _CHECKR_ CECS_CHECKERR(__ECSOBJ__)
@@ -143,9 +152,7 @@ public:
 	virtual const char* name(void) = 0;
 	virtual const char* modname(void) = 0;
 	virtual void throwErrors(int type=_CECS_ERRTYPE_ALL) = 0;
-	virtual void clearLastErrorMsg(void) = 0;
 	virtual void clear(void) = 0;
-	virtual const char* getLastErrorMsg(void) = 0;
 	virtual int GetNumberOfErrors(void) = 0;
 	virtual void* cecs(void) = 0;
 protected:
@@ -153,7 +160,6 @@ protected:
 	char* EcsName;
 	char* ModName;
 	sCECS* pCECS;
-	string lastErrorMsg;
 };
 
 class CECS : private CECSBase {
@@ -180,9 +186,7 @@ public:
 	const char* name(void);
 	const char* modname(void);
 	void throwErrors(int type=_CECS_ERRTYPE_ALL);
-	void clearLastErrorMsg(void);
 	void clear(void);
-	const char* getLastErrorMsg(void);
 	int GetNumberOfErrors(void);
 	void* cecs(void);
 };

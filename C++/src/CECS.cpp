@@ -72,7 +72,6 @@ void CECS::Shutdown(void) {
 	if (pCECS != NULL) { CECS_Shutdown(pCECS); pCECS = NULL; }
 	if (EcsName != NULL) { free(EcsName); EcsName = NULL; }
 	if (ModName != NULL) { free(ModName); ModName = NULL; }
-	lastErrorMsg.clear();
 }
 
 void CECS::RecError(
@@ -101,15 +100,11 @@ void CECS::RecError(
 
 
 const char* CECS::str(void) {
-	// lastErrorMsg.clear();
-	lastErrorMsg.append(CECS_str(pCECS, _CECS_ERRTYPE_ALL));
-	return lastErrorMsg.c_str();
+	return CECS_str(pCECS, _CECS_ERRTYPE_ALL);
 }
 
 const char* CECS::str(int typeId) {
-	// lastErrorMsg.clear();
-	lastErrorMsg.append(CECS_str(pCECS, typeId));
-	return lastErrorMsg.c_str();
+	return CECS_str(pCECS, typeId);
 }
 
 const char* CECS::name(void) {
@@ -129,17 +124,8 @@ void CECS::throwErrors(int type) {
 	}
 }
 
-void CECS::clearLastErrorMsg(void) {
-	lastErrorMsg.clear();
-}
-
 void CECS::clear(void) {
 	CECS_clear(pCECS);
-	clearLastErrorMsg();
-}
-
-const char* CECS::getLastErrorMsg(void) {
-	return lastErrorMsg.c_str();
 }
 
 int CECS::GetNumberOfErrors(void){
