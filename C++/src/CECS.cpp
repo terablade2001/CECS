@@ -128,8 +128,8 @@ void CECS::clear(void) {
 	CECS_clear(pCECS);
 }
 
-int CECS::GetNumberOfErrors(void){
-	return CECS_GetNumberOfErrorsByType(pCECS, _CECS_ERRTYPE_ERROR);
+int CECS::GetNumberOfErrors(int type){
+	return CECS_GetNumberOfErrorsByType(pCECS, type);
 }
 
 void* CECS::cecs(void) {

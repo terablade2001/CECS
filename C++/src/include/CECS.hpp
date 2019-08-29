@@ -153,7 +153,7 @@ public:
 	virtual const char* modname(void) = 0;
 	virtual void throwErrors(int type=_CECS_ERRTYPE_ALL) = 0;
 	virtual void clear(void) = 0;
-	virtual int GetNumberOfErrors(void) = 0;
+	virtual int GetNumberOfErrors(int type=_CECS_ERRTYPE_ALL) = 0;
 	virtual void* cecs(void) = 0;
 protected:
 	CECSBase();
@@ -187,7 +187,7 @@ public:
 	const char* modname(void);
 	void throwErrors(int type=_CECS_ERRTYPE_ALL);
 	void clear(void);
-	int GetNumberOfErrors(void);
+	int GetNumberOfErrors(int type=_CECS_ERRTYPE_ALL);
 	void* cecs(void);
 };
 
