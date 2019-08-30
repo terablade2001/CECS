@@ -82,9 +82,39 @@ int TestThreading() {
 }
 
 
+int SIGTest_Sum(float* x, int n, float& sum) {
+	sum = 0.0f;
+	_ERRI(nullptr==x,"SIGTest_Sum():: x == nullptr")
+	_ERRI(n < 0,"SIGTest_Sum():: n < 0")
+	for (int i = 0 ; i < n; i++)
+		sum+=x[i];
+	_ERRI(sum < 0.0f,"SIGTest_Sum():: sum < 0!")
+	return 0;
+}
+
+int SIGTest(int elms, float& sum) {
+	_ECSCLS_
+	float* x = new float[20];
+	for (int i = 0 ; i < 20; i++) x[i] = 1.0f;
+	_ERRI(0!=SIGTest_Sum(x, elms, sum),"SIGTest_Sum(elms=%i) Failed!", elms)
+	delete[] x;
+	return 0;
+}
+
+
 int main(int argc, char** argv) {
+	_SETSIGNAL(SIGSEGV)
 	try {
-		_ERRT(0!=TestThreading(),"Main(): TestTreading() function produced an error!")
+		#ifdef CECSDEBUG
+			float sum0, sum1;
+			_ERRT(0!=SIGTest(20, sum0),"Main():: SIGTest(20) crashed!")
+			_CHECKRT_
+			_ERRT(0!=SIGTest(200, sum1),"Main():: SIGTest(2000) crashed!")
+			_CHECKRT_
+			cout << (sum0+sum1) << endl;
+		#else
+			_ERRT(0!=TestThreading(),"Main(): TestTreading() function produced an error!")
+		#endif
 	} catch(std::exception &e) {
 		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << "  --> " << e.what() << std::endl;
 	}

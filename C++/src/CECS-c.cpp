@@ -42,12 +42,44 @@ static sCECS CECS = {
 	.MaxErrors = CECS__MAXERRORS,
 	.MaxDisplayStringSize = CECS__MAXDISPSTRSIZE,
 	.RefCounter = 0,
-	.q_mtx = PTHREAD_MUTEX_INITIALIZER
+#ifdef ENABLE_PTHREAD_SUPPORT
+	.q_mtx = PTHREAD_MUTEX_INITIALIZER,
+#endif
+#ifdef CECSDEBUG
+	.sigArray = {0},
+	.nsigArray = 0,
+#endif
+	.unused = 0
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifdef CECSDEBUG
+static void CECS_SigHandler( int signum ) {
+	static char SigErrStr[8] = {0};
+	write(2,"(*) Exception occurred: System: SIGNAL [",40);
+	switch( signum )
+	{
+		case SIGABRT: write(2,"SIGABRT]\n",9);  break;
+		case SIGILL : write(2,"SIGILL ]\n",9);  break;
+		case SIGFPE : write(2,"SIGFPE ]\n",9);  break;
+		case SIGSEGV: write(2,"SIGSEGV]\n",9);  break;
+		default:
+			snprintf(SigErrStr,7,"%2.1i]\n",signum);
+			write(2,SigErrStr,4);
+			break;
+	}
+	const char* str = CECS_str(pCECS, _CECS_ERRTYPE_ALL);
+	int n = 0;
+	while (str[n] != 0) n++;
+	write(2,str,n);
+
+  _exit( signum );
+}
+#endif
+
 
 sCECS* CECS_Initialize(const char* name, sCECS* pcecs, int replaceName) {
 	int i = 0;
@@ -92,11 +124,15 @@ destructed then the CECS-Internal is free.
 	#endif
 
 	MaxErrors = pCECS->MaxErrors;
+	
 
 	//@#| ############### Allocate Memory ###############
 
 	if (pCECS->SErrors == NULL) {
 		pCECS->NErrors = 0;
+#ifdef CECSDEBUG
+		pCECS->nsigArray = 0;
+#endif
 		pCECS->SErrors = (char**) malloc(sizeof(char*) * MaxErrors);
 		for (i = 0; i < MaxErrors; i++) {
 			pCECS->SErrors[i] = (char*) calloc(pCECS->ErrorLength, sizeof(char));
@@ -187,7 +223,9 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	pcecs->SErrIDs = NULL;
 	pcecs->DispStr = NULL;
 	pcecs->MErrors = NULL;
-
+#ifdef CECSDEBUG
+		pCECS->nsigArray = 0;
+#endif
 	return pCECS;
 }
 
@@ -505,6 +543,35 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 void CECS_clear(sCECS* pcecs) {
 	CECS_CheckIfInit(pcecs, "CECS_str()");
 	pCECS->NErrors = 0;
+}
+
+void CECS_HandleSignal(int SignalId, sCECS* pcecs) {
+	pCECS = CECS_CheckIfInit(pcecs, "CECS_HandleSignal/Mod()");
+#ifdef CECSDEBUG
+	if (pCECS->nsigArray >= 32) {
+		CECS_RecError(pCECS,
+			CECS__ERRORID, 0, __FNAME__, __LINE__,
+			"CECS_HandleSignal(): 32 Signals has been registered. Can't register more!"
+		);
+	}
+	#ifdef ENABLE_PTHREAD_SUPPORT
+		pthread_mutex_lock(&pCECS->q_mtx);
+	#endif
+	if (SIG_ERR != signal( SignalId, CECS_SigHandler)) {
+		pCECS->sigArray[pCECS->nsigArray++] = SignalId;
+		#ifdef ENABLE_PTHREAD_SUPPORT
+			pthread_mutex_unlock(&pCECS->q_mtx);
+		#endif
+	} else {
+		#ifdef ENABLE_PTHREAD_SUPPORT
+			pthread_mutex_unlock(&pCECS->q_mtx);
+		#endif
+		CECS_RecError(pCECS,
+			CECS__ERRORID, 0, __FNAME__, __LINE__,
+			"CECS_HandleSignal(): Signal [%i] failed to be registered!", SignalId
+		);
+	}
+#endif
 }
 
 #ifdef __cplusplus

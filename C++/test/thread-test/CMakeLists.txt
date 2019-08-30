@@ -6,16 +6,11 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 project(ThreadTest)
+set(CECSDEBUG "-DCECSDEBUG")
+# set(CECSDEBUG "")
 
-if (MINGW)
-	set(CXX_FLAGS "-std=c++11 -Wall -D__ECSOBJ__=ECS")
-	set(C_FLAGS "-Wall -D__ECSOBJ__=ECS")
-endif(MINGW)
-if (UNIX)
-	set(CXX_FLAGS "-std=c++11 -Wall -Wno-unused-result -D__ECSOBJ__=ECS")
-	set(C_FLAGS "-Wall -Wno-unused-result -D__ECSOBJ__=ECS")
-endif(UNIX)
-
+set(CXX_FLAGS "-std=c++11 -Wall -Wno-unused-result -D__ECSOBJ__=ECS ${CECSDEBUG}")
+set(C_FLAGS "-Wall -Wno-unused-result -D__ECSOBJ__=ECS ${CECSDEBUG}")
 
 set(CMAKE_CONFIGURATION_TYPES "Release")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX_FLAGS}")

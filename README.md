@@ -262,3 +262,44 @@ int main(int argc, char **argv) {
 }
 ```
 
+# Signals support ([0.106]+)
+
+In version [0.106] CECS can be used for signal tracking & debugging like SIGSEGV. This feature is enabled by defining the flag `CECSDEBUG` in the project, and modifies the CECS mechanism to do pre-logging with the DEBUG flag in every `_ERR{X}()` and `_CHECKR{X}_` macro call. 
+
+During the start of the program (main() or initialization function()) the developer can call the `_SETSIGNAL(X)` macro which will bind X signal (e.g. X = SIGSEGV) to CECS handler. If such a signal occurs, then CECS will write() at stderr the contents of CECS which will correspond to pre-logged `DEBUG` records. From top to bottom developer can then track the last position of CECS calls that took place before the signal.
+
+To demonstrate this feature the C++ example has been modified based on the `CECSDEBUG` flag. Running this example the user can take the following result:
+
+```shell
+ThreadTest.exe
+(*) Exception occurred: System: SIGNAL [SIGSEGV]
+------- Main-ECS:: 10 Record(s) of ALL Types recorded! -------
+[DEBUG  ]> #Main(): [main.cpp], 110 |> Main():: SIGTest(20) crashed!
+[DEBUG  ]> #Main(): [main.cpp], 99 |> SIGTest_Sum(elms=20) Failed!
+[DEBUG  ]> #Main(): [main.cpp], 87 |> SIGTest_Sum():: x == nullptr
+[DEBUG  ]> #Main(): [main.cpp], 88 |> SIGTest_Sum():: n < 0
+[DEBUG  ]> #Main(): [main.cpp], 91 |> SIGTest_Sum():: sum < 0!
+[DEBUG  ]> #Main(): [main.cpp], 111 |> CECS_CHECKERROR: _CHECKRT_
+[DEBUG  ]> #Main(): [main.cpp], 112 |> Main():: SIGTest(2000) crashed!
+[DEBUG  ]> #Main(): [main.cpp], 99 |> SIGTest_Sum(elms=200) Failed!
+[DEBUG  ]> #Main(): [main.cpp], 87 |> SIGTest_Sum():: x == nullptr
+[DEBUG  ]> #Main(): [main.cpp], 88 |> SIGTest_Sum():: n < 0
+-------------------------------------------------------
+```
+
+From top to bottom the code went from line 110, to 99, to 87 and then to 88 and 91 and 111. SIGTest(20) was successful. Then the code wen from 112, to 99, to 87, to 88 ... and didn't reach the line 91. Thus the SIGSEGV was happened between lines 88 to 91 for the call SIGTest(200). And this is true! By correcting the tracked issue, the developer can then unset the CECSDEBUG definition and continue development.
+
+**Note**: In order not to fill CECS logging buffer with DEBUG information, it's proposed to use the `_ECSCLS_` macro call to key-points functions (e.g. API functions) thus to reset logging buffer in each successful cycle. For example if the `_ECSCLS_` is placed in the start of the SIGTest() function the result will be:
+
+```shell
+ThreadTest.exe
+(*) Exception occurred: System: SIGNAL [SIGSEGV]
+------- Main-ECS:: 3 Record(s) of ALL Types recorded! -------
+[DEBUG  ]> #Main(): [main.cpp], 99 |> SIGTest_Sum(elms=200) Failed!
+[DEBUG  ]> #Main(): [main.cpp], 87 |> SIGTest_Sum():: x == nullptr
+[DEBUG  ]> #Main(): [main.cpp], 88 |> SIGTest_Sum():: n < 0
+-------------------------------------------------------
+```
+
+It's obvious that the needless DEBUG report of the successful SIGTest(20) is now ignored, and report is more focused in the problematic call.
+

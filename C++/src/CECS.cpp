@@ -136,3 +136,7 @@ void* CECS::cecs(void) {
 	if (pCECS == NULL) Initialize(NULL, NULL, NULL);
 	return (void*)pCECS;
 }
+
+void CECS::SetSignal(int signalId) {
+	CECS_HandleSignal(signalId, pCECS);
+}

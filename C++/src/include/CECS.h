@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.105)
+#define CECS__VERSION (0.106)
 
 #define ENABLE_PTHREAD_SUPPORT
 
@@ -45,6 +45,16 @@
 #ifdef ENABLE_PTHREAD_SUPPORT
 	#include <pthread.h>
 #endif
+
+#ifdef CECSDEBUG
+	#include <csignal>
+	#ifdef _WINDOWS_
+		#define _exit _Exit
+	#else
+		#include <unistd.h>
+	#endif
+#endif
+
 
 #ifndef __FNAME__
 	#define __FNAMEBSL__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
@@ -114,7 +124,14 @@ typedef struct sCECS {
 	int MaxErrors;
 	int MaxDisplayStringSize;
 	int RefCounter;
+#ifdef ENABLE_PTHREAD_SUPPORT
 	pthread_mutex_t q_mtx;
+#endif
+#ifdef CECSDEBUG
+	int sigArray[32];
+	int nsigArray;
+#endif
+	char unused;
 } sCECS;
 
 #ifdef __cplusplus
@@ -320,6 +337,12 @@ const char* CECS_str(sCECS* pcecs, int typeId);
  */
 void CECS_clear(sCECS* pcecs);
 
+/**
+ *  \brief Clears the recorded errors from the error table.
+ *  \param [in] SignalId The signal id to be captured (e.g. SIGSEGV)
+ *  \param [in] pcecs Pointer to Linked CECS object.
+ */
+void CECS_HandleSignal(int SignalId, sCECS* pcecs);
 
 #ifdef __cplusplus
 } // extern "C" { 

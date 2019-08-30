@@ -115,27 +115,54 @@ the function. If need client-specific macros can also be created.
 	CECS_ERRL((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
 #define CECS_CHECKERRO(Obj, __UserReturn__) \
 	CECS_ERRO((Obj), (Obj).GetNumberOfErrors() != 0, __UserReturn__, "CECS_CHECKERROR captured: __UserReturn__ code executed!.")
+	
 // Using internal error-id
-#define _ERRT(ExpR, args...) CECS_ERRT(__ECSOBJ__, ExpR, args)
-#define _ERR(ExpR, args...) CECS_ERR(__ECSOBJ__, ExpR, args)
-#define _ERRI(ExpR, args...) CECS_ERRI(__ECSOBJ__, ExpR, args)
-#define _ERRN(ExpR, args...) CECS_ERRN(__ECSOBJ__, ExpR, args)
-#define _ERRL(ExpR, args...) CECS_ERRL(__ECSOBJ__, ExpR, args)
-#define _ERRO(ExpR, __UserReturn__, args...) CECS_ERRO(__ECSOBJ__, ExpR, __UserReturn__, args)
-#define _WARN(ExpR, args...) CECS_WARN(__ECSOBJ__, ExpR, args)
-#define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args)
 #define _DEBUG(ExpR, args...) CECS_DEBUG(__ECSOBJ__, ExpR, args)
-#define _ERRINF(ExpR, args...) CECS_ERRINF(__ECSOBJ__, ExpR, args)
-#define _WARNO(ExpR, __UserReturn__, args...) CECS_WARNO(__ECSOBJ__, ExpR, __UserReturn__, args)
-#define _INFOO(ExpR, __UserReturn__, args...) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args)
-#define _DEBUGO(ExpR, __UserReturn__, args...) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args)
 
-#define _CHECKRT_ CECS_CHECKERRT(__ECSOBJ__)
-#define _CHECKR_ CECS_CHECKERR(__ECSOBJ__)
-#define _CHECKRI_ CECS_CHECKERRI(__ECSOBJ__)
-#define _CHECKRN_ CECS_CHECKERRN(__ECSOBJ__)
-#define _CHECKRL_ CECS_CHECKERRL(__ECSOBJ__)
-#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
+#ifdef CECSDEBUG
+	#define _ERRT(ExpR, args...) _DEBUG(1, args) CECS_ERRT(__ECSOBJ__, ExpR, args)
+	#define _ERR(ExpR, args...) _DEBUG(1, args) CECS_ERR(__ECSOBJ__, ExpR, args)
+	#define _ERRI(ExpR, args...) _DEBUG(1, args) CECS_ERRI(__ECSOBJ__, ExpR, args)
+	#define _ERRN(ExpR, args...) _DEBUG(1, args) CECS_ERRN(__ECSOBJ__, ExpR, args)
+	#define _ERRL(ExpR, args...) _DEBUG(1, args) CECS_ERRL(__ECSOBJ__, ExpR, args)
+	#define _ERRO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_ERRO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _WARN(ExpR, args...) _DEBUG(1, args) CECS_WARN(__ECSOBJ__, ExpR, args)
+	#define _INFO(ExpR, args...) _DEBUG(1, args) CECS_INFO(__ECSOBJ__, ExpR, args)
+	#define _ERRINF(ExpR, args...) _DEBUG(1, args) CECS_ERRINF(__ECSOBJ__, ExpR, args)
+	#define _WARNO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_WARNO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _INFOO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _DEBUGO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _CHECKRT_ _DEBUG(1, "CECS_CHECKERROR: _CHECKRT_") CECS_CHECKERRT(__ECSOBJ__)
+	#define _CHECKR_  _DEBUG(1, "CECS_CHECKERROR: _CHECKR_") CECS_CHECKERR(__ECSOBJ__)
+	#define _CHECKRI_ _DEBUG(1, "CECS_CHECKERROR: _CHECKRI_") CECS_CHECKERRI(__ECSOBJ__)
+	#define _CHECKRN_ _DEBUG(1, "CECS_CHECKERROR: _CHECKRN_") CECS_CHECKERRN(__ECSOBJ__)
+	#define _CHECKRL_ _DEBUG(1, "CECS_CHECKERROR: _CHECKRL_") CECS_CHECKERRL(__ECSOBJ__)
+	#define _CHECKRO_(__UserReturn__) _DEBUG(1, "CECS_CHECKERROR: _CHECKRO_")  CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
+	#define _SETSIGNAL(Signal) __ECSOBJ__.SetSignal(Signal);
+#else
+	#define _ERRT(ExpR, args...) CECS_ERRT(__ECSOBJ__, ExpR, args)
+	#define _ERR(ExpR, args...) CECS_ERR(__ECSOBJ__, ExpR, args)
+	#define _ERRI(ExpR, args...) CECS_ERRI(__ECSOBJ__, ExpR, args)
+	#define _ERRN(ExpR, args...) CECS_ERRN(__ECSOBJ__, ExpR, args)
+	#define _ERRL(ExpR, args...) CECS_ERRL(__ECSOBJ__, ExpR, args)
+	#define _ERRO(ExpR, __UserReturn__, args...) CECS_ERRO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _WARN(ExpR, args...) CECS_WARN(__ECSOBJ__, ExpR, args)
+	#define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args)
+	#define _ERRINF(ExpR, args...) CECS_ERRINF(__ECSOBJ__, ExpR, args)
+	#define _WARNO(ExpR, __UserReturn__, args...) CECS_WARNO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _INFOO(ExpR, __UserReturn__, args...) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _DEBUGO(ExpR, __UserReturn__, args...) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args)
+	#define _CHECKRT_ CECS_CHECKERRT(__ECSOBJ__)
+	#define _CHECKR_ CECS_CHECKERR(__ECSOBJ__)
+	#define _CHECKRI_ CECS_CHECKERRI(__ECSOBJ__)
+	#define _CHECKRN_ CECS_CHECKERRN(__ECSOBJ__)
+	#define _CHECKRL_ CECS_CHECKERRL(__ECSOBJ__)
+	#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
+	#define _SETSIGNAL(Signal) /* dummy */
+#endif
+
+
+#define _ECSCLS_ { __ECSOBJ__.clear(); }
 
 
 class CECSBase {
@@ -155,6 +182,7 @@ public:
 	virtual void clear(void) = 0;
 	virtual int GetNumberOfErrors(int type=_CECS_ERRTYPE_ERROR) = 0;
 	virtual void* cecs(void) = 0;
+	virtual void SetSignal(int signalId) = 0;
 protected:
 	CECSBase();
 	char* EcsName;
@@ -189,6 +217,7 @@ public:
 	void clear(void);
 	int GetNumberOfErrors(int type=_CECS_ERRTYPE_ERROR);
 	void* cecs(void);
+	void SetSignal(int signalId);
 };
 
 
