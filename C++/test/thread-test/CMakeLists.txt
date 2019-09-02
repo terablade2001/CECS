@@ -6,8 +6,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 
 project(ThreadTest)
-set(CECSDEBUG "-DCECSDEBUG")
-# set(CECSDEBUG "")
+# set(CECSDEBUG "-DCECSDEBUG")
+set(CECSDEBUG "")
 
 set(CXX_FLAGS "-std=c++11 -Wall -Wno-unused-result -D__ECSOBJ__=ECS ${CECSDEBUG}")
 set(C_FLAGS "-Wall -Wno-unused-result -D__ECSOBJ__=ECS ${CECSDEBUG}")

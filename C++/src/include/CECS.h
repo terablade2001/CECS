@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.107)
+#define CECS__VERSION (0.108)
 
 #define ENABLE_PTHREAD_SUPPORT
 
@@ -64,9 +64,9 @@
 
 // Default Error Types ids
 #define _CECS_ERRTYPE_ALL (-1)
-#define _CECS_ERRTYPE_ERROR (0)
-#define _CECS_ERRTYPE_WARNING (1)
-#define _CECS_ERRTYPE_INFO (2)
+#define _CECS_ERRTYPE_ERROR (1)
+#define _CECS_ERRTYPE_WARNING (2)
+#define _CECS_ERRTYPE_INFO (3)
 #define _CECS_ERRTYPE_DEBUG (4)
 #define _CECS_ERRTYPE_ERRINFO (5)
 

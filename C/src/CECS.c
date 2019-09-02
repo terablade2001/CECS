@@ -463,7 +463,10 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	IndxE = CECS_GetErrorsIDsByType(pCECS, typeId, &NE);
 	char* str = pCECS->DispStr;
 	int maxstrprint = pCECS->MaxDisplayStringSize;
-
+	if (!(pCECS->SetupFlag & 0x40)) {
+		snprintf(str, maxstrprint, "CECS:: Errors occurred...");
+		return str;
+	}
 	if (typeId == _CECS_ERRTYPE_ALL) 
 		snprintf(str, maxstrprint,
 			"------- %s:: %i Record(s) of ALL Types recorded! -------\n", pCECS->Name, NE

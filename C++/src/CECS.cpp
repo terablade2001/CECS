@@ -140,3 +140,25 @@ void* CECS::cecs(void) {
 void CECS::SetSignal(int signalId) {
 	CECS_HandleSignal(signalId, pCECS);
 }
+
+
+void CECS::FormatReport(
+	bool display,
+	bool errId,
+	bool srcFile,
+	bool srcLine,
+	bool msg,
+	bool module
+) {
+	if (pCECS == NULL) Initialize(NULL, NULL, NULL);
+	pCECS->SetupFlag = 1<<1;
+	if (display) {
+		pCECS->SetupFlag |=
+			((errId  ?1:0)   ) |
+			((srcFile?1:0)<<2) |
+			((srcLine?1:0)<<3) |
+			((msg    ?1:0)<<4) |
+			((module ?1:0)<<5) |
+			(1<<6);
+	}
+}

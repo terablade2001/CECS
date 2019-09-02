@@ -14,7 +14,10 @@ CECS (C Error Control System) is a C/C++ libary for textual informative error co
 
 If you need a bit more advanced system of Error Control / Logging, you can try CECS which is self-included as source code in each compilation. All Errors are being stored with information tags in internal memory and can be printed-out in any format when they are requested. Useful to track-down errors, on complicated projects.
 
+## LinkedIn Articles
 
+• [CECS: C/C++ Error Control System](https://www.linkedin.com/pulse/cecs-cc-error-control-system-vasileios-pothos/) \
+• [Signals Tracking with CECS](https://www.linkedin.com/pulse/signals-tracking-cecs-vasileios-pothos/)
 
 # C++ Target design
 

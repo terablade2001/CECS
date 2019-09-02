@@ -163,6 +163,9 @@ the function. If need client-specific macros can also be created.
 
 
 #define _ECSCLS_ { __ECSOBJ__.clear(); }
+#define _ECSFORMAT(display, errId, srcFile, srcLine, msg, module) {\
+	__ECSOBJ__.FormatReport((display),(errId),(srcFile),(srcLine),(msg),(module));\
+}
 
 
 class CECSBase {
@@ -183,6 +186,14 @@ public:
 	virtual int GetNumberOfErrors(int type=_CECS_ERRTYPE_ERROR) = 0;
 	virtual void* cecs(void) = 0;
 	virtual void SetSignal(int signalId) = 0;
+	virtual void FormatReport(
+		bool display=true,
+		bool errId=false,
+		bool srcFile=true,
+		bool srcLine=true,
+		bool msg=true,
+		bool module=true
+	) = 0;
 protected:
 	CECSBase();
 	char* EcsName;
@@ -218,6 +229,14 @@ public:
 	int GetNumberOfErrors(int type=_CECS_ERRTYPE_ERROR);
 	void* cecs(void);
 	void SetSignal(int signalId);
+	void FormatReport(
+		bool display=true,
+		bool errId=false,
+		bool srcFile=true,
+		bool srcLine=true,
+		bool msg=true,
+		bool module=true
+	);
 };
 
 
