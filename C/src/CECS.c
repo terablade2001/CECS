@@ -491,9 +491,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 		FS = pCECS->SetupFlag;
 		for (i = 0; i < NE; i++) {
 			const int IDX = IndxE[i];
-			if (typeId != _CECS_ERRTYPE_ALL)
-				snprintf(str, maxstrprint, "%s", str);
-			else {
+			if (typeId == _CECS_ERRTYPE_ALL) {
 				int errtype = CECS_getErrorType(pCECS, IDX);
 				#define arsz (16)
 				#define ars (arsz-1)
