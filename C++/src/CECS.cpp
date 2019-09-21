@@ -87,14 +87,27 @@ void CECS::RecError(
 	#else
 		static char vaStr[CECS__FERRORL]={0};
 	#endif
+	int len = 0;
 	va_list(vargs);
 	va_start(vargs, msg);
-	vsnprintf(vaStr, CECS__FERRORL, msg, vargs);
+	len = vsnprintf(vaStr, CECS__FERRORL, msg, vargs);
 	va_end(vargs);
+	if (len <= 0) snprintf(vaStr,CECS__FERRORL,"CECS::RecError():: %i = vsnprintf() >> failed!", len);
+	CECS_RecErrorMod_NoList(
+		pCECS, const_cast<char*>(ModName), errid, type, fname, line, const_cast<char*>(vaStr), len
+	);
+}
 
-	CECS_RecErrorMod(pCECS,
-		const_cast<char*>(ModName),
-		errid, type, fname, line, const_cast<char*>(vaStr)
+void CECS::RecError_NoList(
+	int errid,
+	int type,
+	const char* fname,
+	const unsigned int line,
+	const char* msg,
+	const unsigned int msgSize
+) {
+	CECS_RecErrorMod_NoList(
+		pCECS, const_cast<char*>(ModName), errid, type, fname, line, msg, msgSize
 	);
 }
 

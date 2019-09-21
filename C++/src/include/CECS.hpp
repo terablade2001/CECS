@@ -96,6 +96,9 @@ the function. If need client-specific macros can also be created.
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args); }
 #define CECS_ERRINF(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args); }
+#define CECS_ERRSTR(Obj, ExpR, __UserSS__) \
+	if ((ExpR))  { std::stringstream ss; __UserSS__; \
+		(Obj).RecError_NoList(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_ERRSTR, __FNAME__, __LINE__, ss.str().c_str(), ss.str().size()); }
 #define CECS_WARNO(Obj, ExpR, __UserReturn__, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args); __UserReturn__ }
 #define CECS_INFOO(Obj, ExpR, __UserReturn__, args...) \
@@ -129,6 +132,7 @@ the function. If need client-specific macros can also be created.
 	#define _WARN(ExpR, args...) _DEBUG(1, args) CECS_WARN(__ECSOBJ__, ExpR, args)
 	#define _INFO(ExpR, args...) _DEBUG(1, args) CECS_INFO(__ECSOBJ__, ExpR, args)
 	#define _ERRINF(ExpR, args...) _DEBUG(1, args) CECS_ERRINF(__ECSOBJ__, ExpR, args)
+	#define _ERRSTR(ExpR, __UserSS__) _DEBUG(1, args) CECS_ERRSTR(__ECSOBJ__, ExpR, __UserSS__)
 	#define _WARNO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_WARNO(__ECSOBJ__, ExpR, __UserReturn__, args)
 	#define _INFOO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args)
 	#define _DEBUGO(ExpR, __UserReturn__, args...) _DEBUG(1, args) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args)
@@ -149,6 +153,7 @@ the function. If need client-specific macros can also be created.
 	#define _WARN(ExpR, args...) CECS_WARN(__ECSOBJ__, ExpR, args)
 	#define _INFO(ExpR, args...) CECS_INFO(__ECSOBJ__, ExpR, args)
 	#define _ERRINF(ExpR, args...) CECS_ERRINF(__ECSOBJ__, ExpR, args)
+	#define _ERRSTR(ExpR, __UserSS__) CECS_ERRSTR(__ECSOBJ__, ExpR, __UserSS__)
 	#define _WARNO(ExpR, __UserReturn__, args...) CECS_WARNO(__ECSOBJ__, ExpR, __UserReturn__, args)
 	#define _INFOO(ExpR, __UserReturn__, args...) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args)
 	#define _DEBUGO(ExpR, __UserReturn__, args...) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args)
@@ -177,6 +182,8 @@ public:
 	virtual void Shutdown(void) = 0;
 	virtual void RecError(int errid, int type, const char* fname,
 				 const unsigned int line, const char* msg, ... ) = 0;
+	virtual void RecError_NoList(int errid, int type, const char* fname,
+				 const unsigned int line, const char* msg, const unsigned int msgSize) = 0;
 	virtual const char* str(void) = 0;
 	virtual const char* str(int typeId) = 0;
 	virtual const char* name(void) = 0;
@@ -219,6 +226,14 @@ public:
 		const unsigned int line,
 		const char* msg,
 		...
+	);
+	void RecError_NoList(
+		int errid,
+		int type,
+		const char* fname,
+		const unsigned int line,
+		const char* msg,
+		const unsigned int msgSize
 	);
 	const char* str(void);
 	const char* str(int typeId);

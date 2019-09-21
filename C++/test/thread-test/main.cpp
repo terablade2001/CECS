@@ -51,7 +51,9 @@ void* Thread_Execute(void* data) {
 	pthread_mutex_unlock(&q_mtx);
 	
 	_ERRO(task_id==(MAX_TASKS>>2),
-		{ pthread_mutex_lock(&q_mtx); CancelThreads = true; pthread_mutex_unlock(&q_mtx); return NULL; },
+		{ pthread_mutex_lock(&q_mtx);
+		_ERRSTR(1, {ss << "Something went"; ss << " wrong! - as expected!"; })
+		CancelThreads = true; pthread_mutex_unlock(&q_mtx); return NULL; },
 		"ERROR: Task [%i] failed {== (%i/4)}",task_id,MAX_TASKS
 	)
 	
