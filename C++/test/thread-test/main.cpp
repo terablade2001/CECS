@@ -103,7 +103,7 @@ int SIGTest(int elms, float& sum) {
 
 
 int main(int argc, char** argv) {
-	_ECSFORMAT(1,0,1,1,0,0)
+	_ECSFORMAT(1,0,1,1,1,0)
 	_SETSIGNAL(SIGSEGV)
 	try {
 		#ifdef CECSDEBUG

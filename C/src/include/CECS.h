@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.108)
+#define CECS__VERSION (0.110)
 
 #define ENABLE_PTHREAD_SUPPORT
 
@@ -34,8 +34,6 @@
 #define CECS__MODNAMELENGTH (32)
 
 #define CECS__FERRORL (512)
-#define CECS__MAXDISPSTRSIZE (CECS__FERRORL * CECS__MAXERRORS + 2)
-
 
 
 #include <stdio.h>
@@ -69,6 +67,7 @@
 #define _CECS_ERRTYPE_INFO (3)
 #define _CECS_ERRTYPE_DEBUG (4)
 #define _CECS_ERRTYPE_ERRINFO (5)
+#define _CECS_ERRTYPE_ERRSTR (6)
 
 // Default Macro-Numbers used in CECS_ERR/WARN/INFO/DEBUG macros.
 #define _CECS_DEFAULT_ERRID (CECS__ERRORID+1)
@@ -113,6 +112,7 @@ typedef struct sCECS {
 	unsigned char SetupFlag;
 	int NErrors;
 	char** SErrors;
+	unsigned int* SErrorsL;
 	int* IErrors;
 	int* TErrors;
 	char** FErrors;
@@ -122,7 +122,6 @@ typedef struct sCECS {
 	char** MErrors;
 	int ErrorLength;
 	int MaxErrors;
-	int MaxDisplayStringSize;
 	int RefCounter;
 #ifdef ENABLE_PTHREAD_SUPPORT
 	pthread_mutex_t q_mtx;
@@ -214,6 +213,29 @@ sCECS* CECS_RecErrorMod(
 	const unsigned int line,
 	const char* msg,
 	...
+);
+
+/**
+ *  \brief Similar to "CECS_RecErrorMod" but not taking valist arguments. The message must have been formated already!
+ *  \param [in] pcecs Pointer to Linked CECS object.
+ *  \param [in] ModName Module Name (for further identification)
+ *  \param [in] errid An error id number.
+ *  \param [in] type A number indicating the type of the error (i.e. 0-Error, 1-Warning, 2-Info etc)
+ *  \param [in] fname Filename where error occurred (i.e. use __FNAME__ macro)
+ *  \param [in] line Line where error occurred (i.e. use __LINE__ macro)
+ *  \param [in] msg Text formating of the error.
+ *  \param [in] msgSize Number of characters in the msg text.
+ *   \return The pointer to the Linked CECS object.
+ */
+sCECS* CECS_RecErrorMod_NoList(
+	sCECS* pcecs,
+	const char* modName,
+	int errid,
+	int type,
+	const char* fname,
+	const unsigned int line,
+	const char* msg,
+	const unsigned int msgSize
 );
 
 /**

@@ -22,8 +22,9 @@ set (CXX_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/../../src/CECS.cpp
     ${CMAKE_CURRENT_LIST_DIR}/../../src/CECS-c.cpp
     ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-		${CMAKE_CURRENT_LIST_DIR}/PThreadPool/PThreadPool.cpp
+	${CMAKE_CURRENT_LIST_DIR}/PThreadPool/PThreadPool.cpp
 )
+# ${CMAKE_CURRENT_LIST_DIR}/../main-test00.cpp
 # set (C_SRCS
     # ${CMAKE_CURRENT_LIST_DIR}/../../../C/src/CECS.c
 # )
