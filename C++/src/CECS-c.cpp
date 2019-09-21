@@ -186,11 +186,12 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	// If the CECS is not initialized yet, then return.
 	if (pcecs->SErrors == NULL) return pCECS;
 
-	if (pcecs->Name != NULL) free(pcecs->Name);
+	if (pcecs->Name != NULL)
+		free(pcecs->Name);
 
 	if (pcecs->SErrors != NULL) {
 		for (i = 0; i < MaxErrors; i++)
-			free(pcecs->SErrors[i]);
+			if (pcecs->SErrors[i] != NULL) free(pcecs->SErrors[i]);
 		free(pcecs->SErrors);
 	}
 
@@ -199,7 +200,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 
 	if (pcecs->FErrors != NULL) {
 		for (i = 0; i < MaxErrors; i++)
-			free(pcecs->FErrors[i]);
+			if (pcecs->FErrors[i] != NULL) free(pcecs->FErrors[i]);
 		free(pcecs->FErrors);
 	}
 
@@ -209,7 +210,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 
 	if (pcecs->MErrors != NULL) {
 		for (i = 0; i < MaxErrors; i++)
-			free(pcecs->MErrors[i]);
+			if (pcecs->MErrors[i]!= NULL) free(pcecs->MErrors[i]);
 		free(pcecs->MErrors);
 	}
 
