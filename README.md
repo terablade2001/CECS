@@ -265,7 +265,11 @@ int main(int argc, char **argv) {
 }
 ```
 
-# Signals support ([0.106]+)
+
+
+# Significant updates
+
+## Signals support ([0.106]+)
 
 In version [0.106] CECS can be used for signal tracking & debugging like SIGSEGV. This feature is enabled by defining the flag `CECSDEBUG` in the project, and modifies the CECS mechanism to do pre-logging with the DEBUG flag in every `_ERR{X}()` and `_CHECKR{X}_` macro call. 
 
@@ -305,4 +309,44 @@ ThreadTest.exe
 ```
 
 It's obvious that the needless DEBUG report of the successful SIGTest(20) is now ignored, and report is more focused in the problematic call.
+
+## Dumbing a lot of info ([0.113]+)
+
+Using CECS there might be cases were the developer may capture an error, but in order to investigate it he may need to dump a lot of info in the error log. Supposing that the developer has a function `const char* get_printable_info()` that returns a large string of formatted information about the current status, it's possible to include the result in the error log using the `_ERRSTR()` macro. This macro can be used before an error check `_ERR{X}()` with the same condition, or inside an `_ERRO()` or `_CHECKRO_` command. For example a typical usage inside an void-return function is:
+```c++
+int result = test_function();
+_ERRO(result!=0,{
+    _ERRSTR(1,{ ss << get_printable_info(); })
+    return;
+	},
+	"Error: result of test_function() != 0 (=%i)", result
+)
+```
+The above code will yield an [ERROR] tag displaying the "`Error: result of test_function() != 0 (=%i)`" result, and then an [ERRSTR] tag containing everything (single line or multiline dumb) that will return the `get_printable_info()` function. The `main-test00.cpp` has been also modified to show how extensive debug info can be added. The result is:
+
+```shell
+(*) Exception occured:
+  --> ------- Main-CECS:: 7 Record(s) of ALL Types recorded! -------
+[ERROR  ]> #Main-Module: [main-test00.cpp], 37 |> TableIsAt():: Zero value for table!
+[ERROR  ]> #Main-Module: [main-test00.cpp], 50 |> CECS_CHECKERROR captured: Function return executed.
+[ERROR  ]> #Main-Module: [main-test00.cpp], 61 |> Return of PersonIsInTable(terablade2001) was negative
+[ERROR  ]> #Main-Module: [main-test00.cpp], 70 |> Return of BallIsInHandsOf() is NULL!
+[ERROR  ]> #Main-Module: [main-test00.cpp], 92 |> CECS_CHECKERROR captured: __UserReturn__ code executed!.
+[ERRSTR ]> #Main-Module: [main-test00.cpp], 92 |> >> ...
++  This is a custom user message.
++  This message will be printed with [ERRSTR] tag.
++  In such custom messages, the develeper can add any kind of
+information in the "ss" stringstream object that _ERRSTR()
+macro provides.
++  That means that he can export whole debug data if need in
+the error log! Like this multiline text!
+i: 0
+i: 1
+i: 2
+i: 3
+i: 4
+... debug data done!
+[ERROR  ]> #Main-Module: [main-test00.cpp], 93 |> CECS_CHECKERROR captured: Function throw executed.
+-------------------------------------------------------
+```
 
