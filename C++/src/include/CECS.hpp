@@ -97,8 +97,8 @@ the function. If need client-specific macros can also be created.
 #define CECS_ERRINF(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args); }
 #define CECS_ERRSTR(Obj, ExpR, __UserSS__) \
-	if ((ExpR))  { std::stringstream ss; __UserSS__; \
-		(Obj).RecError_NoList(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_ERRSTR, __FNAME__, __LINE__, ss.str().c_str(), ss.str().size()); }
+	if ((ExpR))  { std::string ss; __UserSS__; \
+		(Obj).RecError_NoList(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_ERRSTR, __FNAME__, __LINE__, ss.c_str(), ss.size()); }
 #define CECS_WARNO(Obj, ExpR, __UserReturn__, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args); __UserReturn__ }
 #define CECS_INFOO(Obj, ExpR, __UserReturn__, args...) \

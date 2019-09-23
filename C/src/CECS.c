@@ -512,14 +512,21 @@ const char* CECS_getName(sCECS* pcecs) {
 }
 
 const char* CECS_str(sCECS* pcecs, int typeId) {
-	static char lstr[CECS__FERRORL] = {0};
 	int i; int NE; int* IndxE;
 	unsigned char FS;
 	CECS_CheckIfInit(pcecs, "CECS_str()");
 	IndxE = CECS_GetErrorsIDsByType(pCECS, typeId, &NE);
 	unsigned int maxstrprint = CECS__FERRORL*2;
-	for (int i=0; i < NE; i++)
-		maxstrprint += pCECS->SErrorsL[IndxE[i]];
+	unsigned int maxLineLength = 0;
+	for (int i=0; i < NE; i++) {
+		unsigned int lineLength = pCECS->SErrorsL[IndxE[i]];
+		if (lineLength > maxLineLength) { maxLineLength = lineLength; }
+		maxstrprint += lineLength;
+	}
+
+	char* lstr = (char*)calloc(maxLineLength+2, sizeof(char));
+	if (lstr == NULL) return "CECS-Error:: CECS_str(): Failed to allocate line memory!";
+
 	if (pCECS->DispStr != NULL) free(pCECS->DispStr);
 	pCECS->DispStr = (char*)calloc(maxstrprint+2, sizeof(char));
 	char* str = pCECS->DispStr;
@@ -571,34 +578,36 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 				}
 				#undef ars
 				#undef arsz
-				snprintf(lstr, (CECS__FERRORL-1), "[%s]> ",serrtype);
+				snprintf(lstr, maxLineLength, "[%s]> ",serrtype);
 				strncat(str,lstr, maxstrprint);
 			}
 
 			if (FS & 0x20) {
-				snprintf(lstr, (CECS__FERRORL-1), "#%s: ",CECS_getErrorMod(pCECS, IDX));
+				snprintf(lstr, maxLineLength, "#%s: ",CECS_getErrorMod(pCECS, IDX));
 				strncat(str,lstr, maxstrprint);
 			}
 			if (FS & 0x01) {
-				snprintf(lstr, (CECS__FERRORL-1), "%i | ",CECS_getErrorId(pCECS, IDX));
+				snprintf(lstr, maxLineLength, "%i | ",CECS_getErrorId(pCECS, IDX));
 				strncat(str,lstr, maxstrprint);
 			}
 			if (FS & 0x04) {
-				snprintf(lstr, (CECS__FERRORL-1), "[%s], ",CECS_getErrorFile(pCECS, IDX));
+				snprintf(lstr, maxLineLength, "[%s], ",CECS_getErrorFile(pCECS, IDX));
 				strncat(str,lstr, maxstrprint);
 			}
 			if (FS & 0x08){
-				snprintf(lstr, (CECS__FERRORL-1), "%i |> ",CECS_getErrorLine(pCECS, IDX));
+				snprintf(lstr, maxLineLength, "%i |> ",CECS_getErrorLine(pCECS, IDX));
 				strncat(str,lstr, maxstrprint);
 			}
 			if (FS & 0x10){
-				snprintf(lstr, (CECS__FERRORL-1), "%s",CECS_getErrorStr(pCECS, IDX));
+				snprintf(lstr, maxLineLength, "%s",CECS_getErrorStr(pCECS, IDX));
 				strncat(str,lstr, maxstrprint);
 			}
 			strncat(str,"\n",maxstrprint);
 		}
 		strncat(str,"-------------------------------------------------------\n",maxstrprint);
 	}
+
+	if (lstr != NULL) free(lstr);
 	// CECS_clear();
 	return str;
 }

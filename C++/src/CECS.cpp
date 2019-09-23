@@ -129,11 +129,11 @@ const char* CECS::modname(void) {
 }
 
 void CECS::throwErrors(int type) {
-	std::stringstream ErrStr;
 	const char* ErrString = str(type);
 	if (ErrString != NULL) {
-		ErrStr << std::string(ErrString) << endl;
-		throw std::runtime_error(ErrStr.str().c_str());
+		throw std::runtime_error(ErrString);
+	} else {
+		throw std::runtime_error("CECS-ERROR:: throwErrors().str() gave nullptr!");
 	}
 }
 

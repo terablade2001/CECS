@@ -78,15 +78,19 @@ int main(int argc, char **argv)
 	try {
 		FindTheBall();
 		_CHECKRO_(_ERRSTR(1,{
-			ss << ">> ..." << endl << "+  This is a custom user message." << endl;
-			ss << "+  This message will be printed with [ERRSTR] tag." << endl;
-			ss << "+  In such custom messages, the develeper can add any kind of" << endl;
-			ss << "information in the \"ss\" stringstream object that _ERRSTR()" << endl;
-			ss << "macro provides." << endl;
-			ss << "+  That means that he can export whole debug data if need in" << endl;
-			ss << "the error log! Like this multiline text!" << endl;
-			for (int i=0; i < 5; i++) ss << "i: " << i << endl;
-			ss << "... debug data done!";
+			stringstream strs;
+			strs << ">> ..." << endl << "+  This is a custom user message." << endl;
+			strs << "+  This message will be printed with [ERRSTR] tag." << endl;
+			strs << "+  In such custom messages, the develeper can add any kind of" << endl;
+			strs << "information in the \"ss\" stringstream object that _ERRSTR()" << endl;
+			strs << "macro provides." << endl;
+			strs << "+  That means that he can export whole debug data if need in" << endl;
+			strs << "the error log! Like this multiline text!" << endl;
+			for (int i=0; i < 5; i++) {
+				strs << "i: " << i << endl;
+			}
+			strs << "... debug data done!";
+			ss += strs.str();
 		}))
 		_CHECKRT_
 		cout << "Test Completed Succesfully!" << endl;
