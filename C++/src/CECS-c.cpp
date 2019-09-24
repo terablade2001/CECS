@@ -549,6 +549,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 			case _CECS_ERRTYPE_DEBUG   : snprintf(serrtype, ars ,"DEBUG  "); break;
 			case _CECS_ERRTYPE_ERRINFO : snprintf(serrtype, ars ,"ERRINF "); break;
 			case _CECS_ERRTYPE_ERRSTR  : snprintf(serrtype, ars ,"ERRSTR "); break;
+			case _CECS_ERRTYPE_SIGDBG  : snprintf(serrtype, ars ,"SIG-DBG"); break;
 			default                    : snprintf(serrtype, ars ,"-OTHER-");
 		}
 		#undef ars
@@ -574,6 +575,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 					case _CECS_ERRTYPE_DEBUG   : snprintf(serrtype, ars ,"DEBUG  "); break;
 					case _CECS_ERRTYPE_ERRINFO : snprintf(serrtype, ars ,"ERRINF "); break;
 					case _CECS_ERRTYPE_ERRSTR  : snprintf(serrtype, ars ,"ERRSTR "); break;
+					case _CECS_ERRTYPE_SIGDBG  : snprintf(serrtype, ars ,"SIG-DBG"); break;
 					default                    : snprintf(serrtype, ars ,"-OTHER-");
 				}
 				#undef ars
