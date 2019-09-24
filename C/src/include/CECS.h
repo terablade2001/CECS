@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.114)
+#define CECS__VERSION (0.115)
 
 #define ENABLE_PTHREAD_SUPPORT
 
@@ -69,6 +69,7 @@
 #define _CECS_ERRTYPE_ERRINFO (5)
 #define _CECS_ERRTYPE_ERRSTR (6)
 #define _CECS_ERRTYPE_SIGDBG (7)
+#define _CECS_ERRTYPE_ERRLOG (8)
 
 // Default Macro-Numbers used in CECS_ERR/WARN/INFO/DEBUG macros.
 #define _CECS_DEFAULT_ERRID (CECS__ERRORID+1)

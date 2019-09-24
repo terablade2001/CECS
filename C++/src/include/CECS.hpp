@@ -86,7 +86,7 @@ the function. If need client-specific macros can also be created.
 #define CECS_ERRN(Obj, ExpR, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __CECS_RETURN_NULL_ }
 #define CECS_ERRL(Obj, ExpR, args...) \
-	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); }
+	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERRLOG, __FNAME__, __LINE__, args); }
 #define CECS_ERRO(Obj, ExpR, __UserReturn__, args...) \
 	if ((ExpR))  { (Obj).RecError(_CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args); __UserReturn__ }
 #define CECS_WARN(Obj, ExpR, args...) \
@@ -118,7 +118,7 @@ the function. If need client-specific macros can also be created.
 #define CECS_CHECKERRN(Obj) \
 	CECS_ERRN((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
 #define CECS_CHECKERRL(Obj) \
-	CECS_ERRL((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Function return NULL executed.")
+	CECS_ERRL((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Error Logged.")
 #define CECS_CHECKERRO(Obj, __UserReturn__) \
 	CECS_ERRO((Obj), (Obj).GetNumberOfErrors() != 0, __UserReturn__, "CECS_CHECKERROR captured: __UserReturn__ code executed!.")
 	
