@@ -24,14 +24,14 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.115)
+#define CECS__VERSION (0.116)
 
 #define ENABLE_PTHREAD_SUPPORT
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
-#define CECS__ECSNAMELENGTH (32)
-#define CECS__MODNAMELENGTH (32)
+#define CECS__ECSNAMELENGTH (64)
+#define CECS__MODNAMELENGTH (64)
 
 #define CECS__FERRORL (512)
 
