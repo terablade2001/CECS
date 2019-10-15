@@ -104,17 +104,13 @@ If an error has been reported by the use of the previous macros, then the follow
 ## C++ Example
 
 ```c++
-#include "CECS/include/CECS.hpp"
+#include "../src/include/CECS.hpp"
 
 #define __ECSOBJ__ ECS
 static CECS ECS("Main-Module","Main-CECS");
 using namespace std;
 
-
-
-int TableAt = 2;
-
-
+int TableAt = 0; // 1 for success.
 
 int TableIsAt(int _tableat) {
 	_ERRI((_tableat < 0) || (_tableat > 2),"TableIsAt():: Works only for input 0, 1 or 2. Got input = (%i)",_tableat)
@@ -123,8 +119,6 @@ int TableIsAt(int _tableat) {
 	return 7;
 }
 
-
-
 int PersonIsInTable(const char* name) {
 	string namestr(name);
 	_ERRI(namestr.compare("Vasileios"),"Unknown name on tables!")
@@ -132,10 +126,9 @@ int PersonIsInTable(const char* name) {
 	_ERRI(TableNo < 0,"Wrong position of Table given the person [%s]",name)
 	_WARN(TableNo==8, "Warning: TableId == 8!")
 	_CHECKRI_
+	_ERRI(TableAt==0,"error recorded as [ERR-LOG] above. Here it's captured!")
 	return TableNo;
 }
-
-
 
 const char* BallIsInHandsOf(const string& nickname) {
 	_ERRN(nickname.compare("terablade2001"),"Unknown nickname (%s)",nickname.c_str())
@@ -146,26 +139,37 @@ const char* BallIsInHandsOf(const string& nickname) {
 	return name.c_str();
 }
 
-
-
 void FindTheBall() {
 	const string nickname("terablade2001");
 	const char* name = BallIsInHandsOf(nickname);
-	_ERRT(name == NULL,"Return of BallIsInHandsOf() is NULL!")
+	_ERR(name == NULL,"Return of BallIsInHandsOf() is NULL!")
 	cout << "The ball is at person ["<< name << "]" << endl;
 }
 
-
-
 int main(int argc, char **argv)
 {
+	_ECSFORMAT(1,0,0,1,1,1,1,1)
 	try {
 		FindTheBall();
+		_CHECKRO_(_ERRSTR((TableAt!=0)&&(TableAt!=2),{
+			ss << ">> ..." << endl << "+  This is a custom user message." << endl;
+			ss << "+  This message will be printed with [ERRSTR] tag." << endl;
+			ss << "+  In such custom messages, the develeper can add any kind of" << endl;
+			ss << "information in the \"ss\" stringstream object that _ERRSTR()" << endl;
+			ss << "macro provides." << endl;
+			ss << "+  That means that he can export whole debug data if need in" << endl;
+			ss << "the error log! Like this multiline text!" << endl;
+			for (int i=0; i < 5; i++) {
+				ss << "i: " << i << endl;
+			}
+			ss << "... debug data done!";
+		}))
 		_CHECKRT_
 		cout << "Test Completed Succesfully!" << endl;
 	} catch(std::exception &e) {
-		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << "  --> " << e.what() << std::endl;
+		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << e.what() << std::endl;
 	}
+	return 0;
 }
 ```
 
@@ -182,12 +186,18 @@ The above code produce the following results:
 
 ```shell
 (*) Exception occured:
-  --> ------- Main-CECS:: 4 Record(s) of ALL Types recorded! -------
-[ERROR  ]> #Main-Module: [main.cpp], 15 |> TableIsAt():: Zero value for table!
-[ERROR  ]> #Main-Module: [main.cpp], 28 |> CECS_CHECKERROR captured: Function return executed.
-[ERROR  ]> #Main-Module: [main.cpp], 39 |> Return of PersonIsInTable(terablade2001) was negative
-[ERROR  ]> #Main-Module: [main.cpp], 48 |> Return of BallIsInHandsOf() is NULL!
 -------------------------------------------------------
+::    CECS (C/C++ Error Control System) v[0.117]     ::
+::        www.github.com/terablade2001/CECS          ::
+-------------------------------------------------------
+======= (Main-CECS):: [6] Record(s) of ALL Types recorded! =======
+= [ERR-LOG]> #Main-Module: 11 |> TableIsAt():: Zero value for table!
+= [ERROR  ]> #Main-Module: 23 |> error recorded as [ERR-LOG] above. Here it's captured!
+= [ERROR  ]> #Main-Module: 32 |> Return of PersonIsInTable(terablade2001) was negative
+= [ERROR  ]> #Main-Module: 39 |> Return of BallIsInHandsOf() is NULL!
+= [ERROR  ]> #Main-Module: 60 |> CECS_CHECKERROR captured: __UserReturn__ code executed!.
+= [ERROR  ]> #Main-Module: 61 |> CECS_CHECKERROR captured: Function throw executed.
+=======================================================
 ```
 
 * If `TableAt == 2`
@@ -196,25 +206,51 @@ The above code produce the following results:
 User Code Executed!
 
 (*) Exception occured:
-  --> ------- Main-CECS:: 5 Record(s) of ALL Types recorded! -------
-[ERROR  ]> #Main-Module: [main.cpp], 16 |> TableIsAt():: User code execution detected!
-[WARNING]> #Main-Module: [main.cpp], 27 |> Warning: TableId == 8!
-[ERROR  ]> #Main-Module: [main.cpp], 28 |> CECS_CHECKERROR captured: Function return executed.
-[ERROR  ]> #Main-Module: [main.cpp], 39 |> Return of PersonIsInTable(terablade2001) was negative
-[ERROR  ]> #Main-Module: [main.cpp], 48 |> Return of BallIsInHandsOf() is NULL!
 -------------------------------------------------------
+::    CECS (C/C++ Error Control System) v[0.117]     ::
+::        www.github.com/terablade2001/CECS          ::
+-------------------------------------------------------
+======= (Main-CECS):: [7] Record(s) of ALL Types recorded! =======
+= [ERROR  ]> #Main-Module: 12 |> TableIsAt():: User code execution detected!
+= [WARNING]> #Main-Module: 21 |> Warning: TableId == 8!
+= [ERROR  ]> #Main-Module: 22 |> CECS_CHECKERROR captured: Function return executed.
+= [ERROR  ]> #Main-Module: 32 |> Return of PersonIsInTable(terablade2001) was negative
+= [ERROR  ]> #Main-Module: 39 |> Return of BallIsInHandsOf() is NULL!
+= [ERROR  ]> #Main-Module: 60 |> CECS_CHECKERROR captured: __UserReturn__ code executed!.
+= [ERROR  ]> #Main-Module: 61 |> CECS_CHECKERROR captured: Function throw executed.
+=======================================================
 ```
 
-* For any other value of `TableAt`: 
+* For any other value of `TableAt`, i.e. `-1`: 
 
 ```shell
 (*) Exception occured:
-  --> ------- Main-CECS:: 4 Record(s) of ALL Types recorded! -------
-[ERROR  ]> #Main-Module: [main.cpp], 14 |> TableIsAt():: Works only for input 0, 1 or 2. Got input = (-1)
-[ERROR  ]> #Main-Module: [main.cpp], 26 |> Wrong position of Table given the person [Vasileios]
-[ERROR  ]> #Main-Module: [main.cpp], 39 |> Return of PersonIsInTable(terablade2001) was negative
-[ERROR  ]> #Main-Module: [main.cpp], 48 |> Return of BallIsInHandsOf() is NULL!
 -------------------------------------------------------
+::    CECS (C/C++ Error Control System) v[0.117]     ::
+::        www.github.com/terablade2001/CECS          ::
+-------------------------------------------------------
+======= (Main-CECS):: [7] Record(s) of ALL Types recorded! =======
+= [ERROR  ]> #Main-Module: 10 |> TableIsAt():: Works only for input 0, 1 or 2. Got input = (-1)
+= [ERROR  ]> #Main-Module: 20 |> Wrong position of Table given the person [Vasileios]
+= [ERROR  ]> #Main-Module: 32 |> Return of PersonIsInTable(terablade2001) was negative
+= [ERROR  ]> #Main-Module: 39 |> Return of BallIsInHandsOf() is NULL!
+= [ERROR  ]> #Main-Module: 60 |> CECS_CHECKERROR captured: __UserReturn__ code executed!.
+= [ERRSTR ]> #Main-Module: 60 |> >> ...
++  This is a custom user message.
++  This message will be printed with [ERRSTR] tag.
++  In such custom messages, the develeper can add any kind of
+information in the "ss" stringstream object that _ERRSTR()
+macro provides.
++  That means that he can export whole debug data if need in
+the error log! Like this multiline text!
+i: 0
+i: 1
+i: 2
+i: 3
+i: 4
+... debug data done!
+= [ERROR  ]> #Main-Module: 61 |> CECS_CHECKERROR captured: Function throw executed.
+=======================================================
 ```
 
 
@@ -222,7 +258,7 @@ User Code Executed!
 
 
 
-# C Example
+# C Example (*outdated...*)
 
 An example taken from the test code "t00_test.c":
 

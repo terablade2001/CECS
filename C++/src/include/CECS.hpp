@@ -171,8 +171,8 @@ the function. If need client-specific macros can also be created.
 
 
 #define _ECSCLS_ { __ECSOBJ__.clear(); }
-#define _ECSFORMAT(display, errId, srcFile, srcLine, msg, module) {\
-	__ECSOBJ__.FormatReport((display),(errId),(srcFile),(srcLine),(msg),(module));\
+#define _ECSFORMAT(display, errId, srcFile, srcLine, msg, module, cecsInfo, trackErrors) {\
+	__ECSOBJ__.FormatReport((display),(errId),(srcFile),(srcLine),(msg),(module),(cecsInfo),(trackErrors));\
 }
 
 
@@ -202,7 +202,9 @@ public:
 		bool srcFile=true,
 		bool srcLine=true,
 		bool msg=true,
-		bool module=true
+		bool module=true,
+		bool cecsInfo=true,
+		bool trackErrors=true
 	) = 0;
 protected:
 	CECSBase();
@@ -253,7 +255,9 @@ public:
 		bool srcFile=true,
 		bool srcLine=true,
 		bool msg=true,
-		bool module=true
+		bool module=true,
+		bool cecsInfo=true,
+		bool trackErrors=true
 	);
 };
 

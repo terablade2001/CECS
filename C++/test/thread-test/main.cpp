@@ -105,7 +105,7 @@ int SIGTest(int elms, float& sum) {
 
 
 int main(int argc, char** argv) {
-	_ECSFORMAT(1,0,1,1,1,0)
+	_ECSFORMAT(1,0,1,1,1,1,1,1)
 	_SETSIGNAL(SIGSEGV)
 	try {
 		#ifdef CECSDEBUG
@@ -116,9 +116,9 @@ int main(int argc, char** argv) {
 			_CHECKRT_
 			cout << (sum0+sum1) << endl;
 		#else
-			_ERRT(0!=TestThreading(),"Main(): TestTreading() function produced an error!")
+			_ERRT(0!=TestThreading(),"Main(): TestThreading() function produced an error!")
 		#endif
 	} catch(std::exception &e) {
-		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << "  --> " << e.what() << std::endl;
+		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << e.what() << std::endl;
 	}
 }

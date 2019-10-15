@@ -314,19 +314,19 @@ sCECS* CECS_RecErrorMod_NoList(
 		idx = pCECS->NErrors++;
 		FS = pCECS->SetupFlag;
 
-		if (FS & 0x01)
+		if (FS & 0x01) // <<0: errid
 			pCECS->IErrors[idx] = errid;
 
-		if (FS & 0x02)
+		if (FS & 0x02) // <<1: err-type
 			pCECS->TErrors[idx] = type;
 
-		if (FS & 0x04)
+		if (FS & 0x04) // <<2: file-name
 			strncpy(pCECS->FErrors[idx], fname, CECS__FERRORL);
 
-		if (FS & 0x08)
+		if (FS & 0x08) // <<3: src-line
 			pCECS->LErrors[idx] = line;
 
-		if (FS & 0x10) {
+		if (FS & 0x10) { // <<4: msg
 			if (pCECS->SErrors[idx] != NULL) free(pCECS->SErrors[idx]);
 			pCECS->SErrorsL[idx] = 0;
 			if ((msgSize == 0) || (msg == NULL))
@@ -342,7 +342,7 @@ sCECS* CECS_RecErrorMod_NoList(
 			}
 		}
 		
-		if (FS & 0x20)
+		if (FS & 0x20) // <<5: module
 			strncpy(pCECS->MErrors[idx], modName, CECS__MODNAMELENGTH);
 	}
 	#ifdef ENABLE_PTHREAD_SUPPORT
@@ -516,7 +516,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	unsigned char FS;
 	CECS_CheckIfInit(pcecs, "CECS_str()");
 	IndxE = CECS_GetErrorsIDsByType(pCECS, typeId, &NE);
-	unsigned int maxstrprint = CECS__FERRORL*2;
+	unsigned int maxstrprint = CECS__FERRORL*4;
 	unsigned int maxLineLength = 0;
 	for (int i=0; i < NE; i++) {
 		unsigned int lineLength = pCECS->SErrorsL[IndxE[i]];
@@ -530,15 +530,34 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	if (pCECS->DispStr != NULL) free(pCECS->DispStr);
 	pCECS->DispStr = (char*)calloc(maxstrprint+2, sizeof(char));
 	char* str = pCECS->DispStr;
-	if (!(pCECS->SetupFlag & 0x40)) {
-		snprintf(str, maxstrprint, "CECS:: Errors occurred...");
+	static char devBuff[CECS__FERRORL*4] = {0};
+	if (pCECS->SetupFlag & 0x80) { // <<7: Show CECS info
+		snprintf(str, CECS__FERRORL-1,
+			"-------------------------------------------------------\n"
+			"::    CECS (C/C++ Error Control System) v[%5.3f]     ::\n"
+			"::        www.github.com/terablade2001/CECS          ::\n"
+			"-------------------------------------------------------\n",
+			CECS__VERSION
+		);
+	} else { str[0]=0; str[1]=0; }
+
+	if (!(pCECS->SetupFlag & 0x40)) { // <<6: Show track errors
+		snprintf(devBuff, CECS__FERRORL*3-1,
+		"=======================================================\n"
+		"= CECS:: Errors occurred! (Errors tracking is [OFF])  =\n"
+		"=======================================================\n"
+		);
+		strncat(str, devBuff, maxstrprint);
 		return str;
 	}
-	if (typeId == _CECS_ERRTYPE_ALL) 
-		snprintf(str, maxstrprint,
-			"------- %s:: %i Record(s) of ALL Types recorded! -------\n", pCECS->Name, NE
+	
+
+	if (typeId == _CECS_ERRTYPE_ALL) {
+		snprintf(devBuff, CECS__FERRORL-1,
+			"======= (%s):: [%i] Record(s) of ALL Types recorded! =======\n", pCECS->Name, NE
 		);
-	else {
+		strncat(str, devBuff, maxstrprint);
+	} else {
 		#define arsz (16)
 		#define ars (arsz-1)
 		static char serrtype [arsz]={0};
@@ -555,9 +574,10 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 		}
 		#undef ars
 		#undef arsz
-		snprintf(str, maxstrprint,
-			"------- %s:: %i Record(s) of Type [%s] recorded! -------\n", pCECS->Name, NE, serrtype
+		snprintf(devBuff, CECS__FERRORL-1,
+			"======= (%s):: [%i] Record(s) of Type [%s] recorded! =======\n", pCECS->Name, NE, serrtype
 		);
+		strncat(str, devBuff, maxstrprint);
 	}
 
 	if (NE > 0) {
@@ -582,7 +602,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 				}
 				#undef ars
 				#undef arsz
-				snprintf(lstr, maxLineLength, "[%s]> ",serrtype);
+				snprintf(lstr, maxLineLength, "= [%s]> ",serrtype);
 				strncat(str,lstr, maxstrprint);
 			}
 
@@ -608,7 +628,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 			}
 			strncat(str,"\n",maxstrprint);
 		}
-		strncat(str,"-------------------------------------------------------\n",maxstrprint);
+		strncat(str,"=======================================================\n",maxstrprint);
 	}
 
 	if (lstr != NULL) free(lstr);

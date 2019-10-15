@@ -26,11 +26,7 @@
 static CECS ECS("Main-Module","Main-CECS");
 using namespace std;
 
-
-
 int TableAt = 0; // 1 for success.
-
-
 
 int TableIsAt(int _tableat) {
 	_ERRI((_tableat < 0) || (_tableat > 2),"TableIsAt():: Works only for input 0, 1 or 2. Got input = (%i)",_tableat)
@@ -39,8 +35,6 @@ int TableIsAt(int _tableat) {
 	return 7;
 }
 
-
-
 int PersonIsInTable(const char* name) {
 	string namestr(name);
 	_ERRI(namestr.compare("Vasileios"),"Unknown name on tables!")
@@ -48,10 +42,9 @@ int PersonIsInTable(const char* name) {
 	_ERRI(TableNo < 0,"Wrong position of Table given the person [%s]",name)
 	_WARN(TableNo==8, "Warning: TableId == 8!")
 	_CHECKRI_
+	_ERRI(TableAt==0,"error recorded as [ERR-LOG] above. Here it's captured!")
 	return TableNo;
 }
-
-
 
 const char* BallIsInHandsOf(const string& nickname) {
 	_ERRN(nickname.compare("terablade2001"),"Unknown nickname (%s)",nickname.c_str())
@@ -62,8 +55,6 @@ const char* BallIsInHandsOf(const string& nickname) {
 	return name.c_str();
 }
 
-
-
 void FindTheBall() {
 	const string nickname("terablade2001");
 	const char* name = BallIsInHandsOf(nickname);
@@ -71,13 +62,12 @@ void FindTheBall() {
 	cout << "The ball is at person ["<< name << "]" << endl;
 }
 
-
-
 int main(int argc, char **argv)
 {
+	_ECSFORMAT(1,0,0,1,1,1,1,1)
 	try {
 		FindTheBall();
-		_CHECKRO_(_ERRSTR(1,{
+		_CHECKRO_(_ERRSTR((TableAt!=0)&&(TableAt!=2),{
 			ss << ">> ..." << endl << "+  This is a custom user message." << endl;
 			ss << "+  This message will be printed with [ERRSTR] tag." << endl;
 			ss << "+  In such custom messages, the develeper can add any kind of" << endl;
@@ -93,7 +83,7 @@ int main(int argc, char **argv)
 		_CHECKRT_
 		cout << "Test Completed Succesfully!" << endl;
 	} catch(std::exception &e) {
-		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << "  --> " << e.what() << std::endl;
+		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << e.what() << std::endl;
 	}
 	return 0;
 }
