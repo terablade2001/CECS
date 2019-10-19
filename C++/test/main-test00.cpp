@@ -26,12 +26,17 @@
 static CECS ECS("Main-Module","Main-CECS");
 using namespace std;
 
-int TableAt = 0; // 1 for success.
+int TableAt = 3; // 1 for success.
 
+bool boolCheck(int _tableat) {
+	_ERRB(3==_tableat,"TableAt == 3. Boolean error procuced!")
+	return true;
+}
 int TableIsAt(int _tableat) {
-	_ERRI((_tableat < 0) || (_tableat > 2),"TableIsAt():: Works only for input 0, 1 or 2. Got input = (%i)",_tableat)
+	_ERRI((_tableat < 0) || (_tableat > 3),"TableIsAt():: Works only for input 0, 1, 2 or 3. Got input = (%i)",_tableat)
 	_ERRL(_tableat==0,"TableIsAt():: Zero value for table!")
 	_ERRO(_tableat==2,  { cout<<"User Code Executed!"<<endl; return 8; }, "TableIsAt():: User code execution detected!")
+	_ERRI(!boolCheck(_tableat),"boolCheck() returned false!...")
 	return 7;
 }
 
