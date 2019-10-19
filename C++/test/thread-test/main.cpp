@@ -23,8 +23,7 @@
 #include "../../src/include/CECS.hpp"
 #include "PThreadPool/include/PThreadPool.hpp"
 
-static CECS ECS("Main()","Main-ECS");
-
+CECS_MAIN_MODULE("Main()","Main-ECS")
 
 #include <stdint.h>
 #include <unistd.h>

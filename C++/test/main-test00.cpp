@@ -22,8 +22,10 @@
 // SOFTWARE.
 #include "../src/include/CECS.hpp"
 
-#define __ECSOBJ__ ECS
-static CECS ECS("Main-Module","Main-CECS");
+#ifndef __ECSOBJ__
+	#define __ECSOBJ__ ECS
+#endif
+CECS_MAIN_MODULE("Main-Module","Main-ECS")
 using namespace std;
 
 int TableAt = 3; // 1 for success.

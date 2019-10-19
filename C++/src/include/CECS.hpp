@@ -64,6 +64,9 @@ the id and returns from the function that the error-check is executed. In
 contrast the macros that are using internal error-id, does not return from 
 the function. If need client-specific macros can also be created.
 */
+#define CECS_MODULE(moduleName) static CECS __ECSOBJ__(moduleName);
+#define CECS_MAIN_MODULE(moduleName, cecsName) static CECS __ECSOBJ__(moduleName, cecsName);
+
 #define __CECS_IRETURN__(ErrID) return (ErrID);
 #define __CECS_RETURN__ return;
 #define __CECS_RETURN_NULL_ return NULL;
