@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.118)
+#define CECS__VERSION (0.119)
 
 #define ENABLE_PTHREAD_SUPPORT
 

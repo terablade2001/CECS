@@ -25,13 +25,12 @@
 
 using namespace std;
 
-CECSBase::CECSBase():
+CECS::CECS():
 	EcsName(NULL),
 	ModName(NULL),
 	pCECS(NULL)
-{ }
+{ Initialize(NULL, NULL, NULL); }
 
-CECS::CECS() { Initialize(NULL, NULL, NULL); }
 CECS::~CECS() { Shutdown(); }
 
 CECS::CECS(const char* modName, const char* ecsName, void* cecs) {

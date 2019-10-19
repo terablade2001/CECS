@@ -184,45 +184,7 @@ the function. If need client-specific macros can also be created.
 	__ECSOBJ__.FormatReport((display),(errId),(srcFile),(srcLine),(msg),(module),(cecsInfo),(trackErrors));\
 }
 
-
-class CECSBase {
-public:
-	virtual ~CECSBase() {}
-	virtual void Initialize(char* ecsName, char* modName = NULL, void* cecs = NULL) = 0;
-	virtual void ConnectTo(void* cecs) = 0;
-	virtual void ReInitIfDead(void) = 0;
-	virtual void Shutdown(void) = 0;
-	virtual void RecError(int errid, int type, const char* fname,
-				 const unsigned int line, const char* msg, ... ) = 0;
-	virtual void RecError_NoList(int errid, int type, const char* fname,
-				 const unsigned int line, const char* msg, const unsigned int msgSize) = 0;
-	virtual const char* str(void) = 0;
-	virtual const char* str(int typeId) = 0;
-	virtual const char* name(void) = 0;
-	virtual const char* modname(void) = 0;
-	virtual void throwErrors(int type=_CECS_ERRTYPE_ALL) = 0;
-	virtual void clear(void) = 0;
-	virtual int GetNumberOfErrors(int type=_CECS_ERRTYPE_ERROR) = 0;
-	virtual void* cecs(void) = 0;
-	virtual void SetSignal(int signalId) = 0;
-	virtual void FormatReport(
-		bool display=true,
-		bool errId=false,
-		bool srcFile=true,
-		bool srcLine=true,
-		bool msg=true,
-		bool module=true,
-		bool cecsInfo=true,
-		bool trackErrors=true
-	) = 0;
-protected:
-	CECSBase();
-	char* EcsName;
-	char* ModName;
-	sCECS* pCECS;
-};
-
-class CECS : private CECSBase {
+class CECS {
 public:
 	CECS();
 	CECS(char* modName, char* ecsName = NULL, void* cecs = NULL);
@@ -268,6 +230,10 @@ public:
 		bool cecsInfo=true,
 		bool trackErrors=true
 	);
+protected:
+	char* EcsName;
+	char* ModName;
+	sCECS* pCECS;
 };
 
 
