@@ -24,9 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.120)
-
-#define ENABLE_PTHREAD_SUPPORT
+#define CECS__VERSION (0.121)
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
@@ -35,6 +33,22 @@
 
 #define CECS__FERRORL (512)
 
+#ifndef _MSC_VER
+  #define ENABLE_PTHREAD_SUPPORT
+  #ifdef HAVE_DESIGNATED_INITIALIZERS
+    #define _ECS_SFINIT(f, args...) f = args
+  #else
+    #define _ECS_SFINIT(f, args...) args
+  #endif
+#endif
+#ifdef _MSC_VER
+  #define _CRT_SECURE_NO_WARNINGS
+  #ifdef HAVE_DESIGNATED_INITIALIZERS
+    #define _ECS_SFINIT(f, ...) f = __VA_ARGS__
+  #else
+    #define _ECS_SFINIT(f, ...) __VA_ARGS__
+  #endif
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,36 +92,70 @@
 #define _CECS_DEFAULT_DEBUGID (0)
 
 // User short-code macros
-#define CECS_IERR(ecsptr, ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_IWARN(ecsptr, ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+#ifndef _MSC_VER
+	#define CECS_IERR(ecsptr, ExpR, ErrID, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+	#define CECS_IWARN(ecsptr, ExpR, ErrID, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
 
-#define CECS_ERR(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_WARN(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
-#define CECS_INFO(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
-#define CECS_DEBUG(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
-#define CECS_ERRINF(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args);
+	#define CECS_ERR(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+	#define CECS_WARN(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+	#define CECS_INFO(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
+	#define CECS_DEBUG(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+	#define CECS_ERRINF(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, args);
 
-// Those macros also record Module-Name (which must exist in CECS_ModName[] table).
-#define CECS_MIERR(ecsptr, ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_MIWARN(ecsptr, ExpR, ErrID, args...) \
-	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+	// Those macros also record Module-Name (which must exist in CECS_ModName[] table).
+	#define CECS_MIERR(ecsptr, ExpR, ErrID, args...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+	#define CECS_MIWARN(ecsptr, ExpR, ErrID, args...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
 
-#define CECS_MERR(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
-#define CECS_MWARN(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
-#define CECS_MINFO(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
-#define CECS_MDEBUG(ecsptr, ExpR, args...) \
-	if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+	#define CECS_MERR(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, args);
+	#define CECS_MWARN(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, args);
+	#define CECS_MINFO(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, args);
+	#define CECS_MDEBUG(ecsptr, ExpR, args...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, args);
+#endif
+#ifdef _MSC_VER
+	#define CECS_IERR(ecsptr, ExpR, ErrID, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_IWARN(ecsptr, ExpR, ErrID, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, __VA_ARGS__);
+
+	#define CECS_ERR(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_WARN(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_INFO(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_DEBUG(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_ERRINF(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecError((ecsptr), _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_ERRINFO, __FNAME__, __LINE__, __VA_ARGS__);
+
+	// Those macros also record Module-Name (which must exist in CECS_ModName[] table).
+	#define CECS_MIERR(ecsptr, ExpR, ErrID, ...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_MIWARN(ecsptr, ExpR, ErrID, ...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, (ErrID), _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, __VA_ARGS__);
+
+	#define CECS_MERR(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_ERRID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_MWARN(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_WARNID, _CECS_ERRTYPE_WARNING, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_MINFO(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_INFOID, _CECS_ERRTYPE_INFO, __FNAME__, __LINE__, __VA_ARGS__);
+	#define CECS_MDEBUG(ecsptr, ExpR, ...) \
+		if ((ExpR)) CECS_RecErrorMod((ecsptr), CECS_ModName, _CECS_DEFAULT_DEBUGID, _CECS_ERRTYPE_DEBUG, __FNAME__, __LINE__, __VA_ARGS__);
+#endif
 
 typedef struct sCECS {
 	char* Name;

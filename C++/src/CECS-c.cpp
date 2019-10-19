@@ -26,30 +26,29 @@
 static sCECS* pCECS = NULL;
 
 static sCECS CECS = {
-	.Name = NULL,
-	// .SetupFlag = 0xFF,
-	.SetupFlag = 0xFE,
-	.NErrors = 0,
-	.SErrors = NULL,
-	.SErrorsL = NULL,
-	.IErrors = NULL,
-	.TErrors = NULL,
-	.FErrors = NULL,
-	.LErrors = NULL,
-	.SErrIDs = NULL,
-	.DispStr = NULL,
-	.MErrors = NULL,
-	.ErrorLength = CECS__FERRORL,
-	.MaxErrors = CECS__MAXERRORS,
-	.RefCounter = 0,
+	_ECS_SFINIT(Name, NULL),
+	_ECS_SFINIT(SetupFlag, 0xFE),
+	_ECS_SFINIT(NErrors  , 0),
+	_ECS_SFINIT(SErrors  ,NULL),
+	_ECS_SFINIT(SErrorsL ,NULL),
+	_ECS_SFINIT(IErrors  ,NULL),
+	_ECS_SFINIT(TErrors  ,NULL),
+	_ECS_SFINIT(FErrors  ,NULL),
+	_ECS_SFINIT(LErrors  ,NULL),
+	_ECS_SFINIT(SErrIDs  ,NULL),
+	_ECS_SFINIT(DispStr  ,NULL),
+	_ECS_SFINIT(MErrors  ,NULL),
+	_ECS_SFINIT(ErrorLength, CECS__FERRORL),
+	_ECS_SFINIT(MaxErrors, CECS__MAXERRORS),
+	_ECS_SFINIT(RefCounter, 0),
 #ifdef ENABLE_PTHREAD_SUPPORT
-	.q_mtx = PTHREAD_MUTEX_INITIALIZER,
+	_ECS_SFINIT(q_mtx, PTHREAD_MUTEX_INITIALIZER),
 #endif
 #ifdef CECSDEBUG
-	.sigArray = {0},
-	.nsigArray = 0,
+	_ECS_SFINIT(sigArray, {0}),
+	_ECS_SFINIT(nsigArray, 0),
 #endif
-	.unused = 0
+	_ECS_SFINIT(unused, 0)
 };
 
 #ifdef __cplusplus

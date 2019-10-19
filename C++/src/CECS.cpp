@@ -91,7 +91,7 @@ void CECS::RecError(
 	va_start(vargs, msg);
 	len = vsnprintf(vaStr, CECS__FERRORL, msg, vargs);
 	va_end(vargs);
-	if (len <= 0) snprintf(vaStr,CECS__FERRORL,"CECS::RecError():: %i = vsnprintf() >> failed!", len);
+	if (len <= 0) snprintf(vaStr,CECS__FERRORL,"CECS::RecError():: %i = vsnprintf() >> failed!", (const unsigned int)len);
 	CECS_RecErrorMod_NoList(
 		pCECS, const_cast<char*>(ModName), errid, type, fname, line, const_cast<char*>(vaStr), len
 	);
