@@ -27,12 +27,12 @@ CECS_MAIN_MODULE("Main()","Main-ECS")
 
 #include <stdint.h>
 #include <unistd.h>
-#define MAX_THREADS (4)
+#define MAX_THREADS (8)
 #define MAX_TASKS (12)
 static bool CancelThreads = false;
-static pthread_mutex_t q_mtx = PTHREAD_MUTEX_INITIALIZER;
 using namespace vkp;
 
+static pthread_mutex_t q_mtx = PTHREAD_MUTEX_INITIALIZER;
 typedef struct SThread_data {
 	int task_id;
 } SThread_data;
@@ -55,6 +55,8 @@ void* Thread_Execute(void* data) {
 		CancelThreads = true; pthread_mutex_unlock(&q_mtx); return NULL; },
 		"ERROR: Task [%i] failed {== (%i/4)}",task_id,MAX_TASKS
 	)
+
+	_INFO(1,"Counting ... %i ... / %i ....",task_id,MAX_TASKS)
 	
 	pthread_mutex_lock(&q_mtx);
 	cout << "(working on Task ["<<task_id<<"] ...)" << endl;
@@ -106,6 +108,15 @@ int SIGTest(int elms, float& sum) {
 int main(int argc, char** argv) {
 	_ECSFORMAT(1,0,1,1,1,1,1,1)
 	_SETSIGNAL(SIGSEGV)
+	
+	// Define our own thread sync system for CECS.
+	static pthread_mutex_t q_mtx_CECS = PTHREAD_MUTEX_INITIALIZER;
+	*(pthread_mutex_t**)CECS_MUTEXPTR = &q_mtx_CECS;
+	CECS_SETFUNC_LOCK( [](){ pthread_mutex_lock(*(pthread_mutex_t**)CECS_MUTEXPTR);} );
+	CECS_SETFUNC_UNLOCK( [](){ pthread_mutex_unlock(*(pthread_mutex_t**)CECS_MUTEXPTR);});
+	_CHECKRI_
+
+
 	try {
 		#ifdef CECSDEBUG
 			float sum0, sum1;

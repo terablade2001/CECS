@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.121)
+#define CECS__VERSION (0.122)
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
@@ -34,7 +34,6 @@
 #define CECS__FERRORL (512)
 
 #ifndef _MSC_VER
-  #define ENABLE_PTHREAD_SUPPORT
   #ifdef HAVE_DESIGNATED_INITIALIZERS
     #define _ECS_SFINIT(f, args...) f = args
   #else
@@ -54,9 +53,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#ifdef ENABLE_PTHREAD_SUPPORT
-	#include <pthread.h>
-#endif
 
 #ifdef CECSDEBUG
 	#include <csignal>
@@ -173,9 +169,9 @@ typedef struct sCECS {
 	int ErrorLength;
 	int MaxErrors;
 	int RefCounter;
-#ifdef ENABLE_PTHREAD_SUPPORT
-	pthread_mutex_t q_mtx;
-#endif
+	void (*cecs_lock)(void);
+	void (*cecs_unlock)(void);
+	void* cecs_mutex;
 #ifdef CECSDEBUG
 	int sigArray[32];
 	int nsigArray;
@@ -415,6 +411,28 @@ void CECS_clear(sCECS* pcecs);
  *  \param [in] pcecs Pointer to Linked CECS object.
  */
 void CECS_HandleSignal(int SignalId, sCECS* pcecs);
+
+/**
+ *  \brief Set a function to be called when threads-locking is required.
+ *  \param [in] pcecs Pointer to Linked CECS object.
+ *  \param [in] Pointer to a function of type void f(void)
+ *  \return The pointer to the Linked CECS object.
+ */
+sCECS* CECS_SetFunc_Lock(
+	sCECS* pcecs,
+	void (*func)(void)
+);
+
+/**
+ *  \brief Set a function to be called when threads-unlocking is required.
+ *  \param [in] pcecs Pointer to Linked CECS object.
+ *  \param [in] Pointer to a function of type void f(void)
+ *  \return The pointer to the Linked CECS object.
+ */
+sCECS* CECS_SetFunc_Unlock(
+	sCECS* pcecs,
+	void (*func)(void)
+);
 
 #ifdef __cplusplus
 } // extern "C" { 

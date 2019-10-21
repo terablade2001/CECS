@@ -81,11 +81,7 @@ void CECS::RecError(
 	const char* msg,
 	...
 ) {
-	#ifdef ENABLE_PTHREAD_SUPPORT
-		char vaStr[CECS__FERRORL]={0};
-	#else
-		static char vaStr[CECS__FERRORL]={0};
-	#endif
+	char vaStr[CECS__FERRORL]={0};
 	int len = 0;
 	va_list(vargs);
 	va_start(vargs, msg);
@@ -176,4 +172,17 @@ void CECS::FormatReport(
 			((trackErrors ? 1:0)<<6) |
 			((cecsInfo    ? 1:0)<<7);
 	}
+}
+
+void CECS::SetFunc_Lock(void (*func)(void)) {
+	if (pCECS == NULL) Initialize(NULL, NULL, NULL);
+	pCECS = CECS_SetFunc_Lock(pCECS, func);
+}
+void CECS::SetFunc_Unlock(void (*func)(void)) {
+	if (pCECS == NULL) Initialize(NULL, NULL, NULL);
+	pCECS = CECS_SetFunc_Unlock(pCECS, func);
+}
+void** CECS::getMutexPtr(void) {
+	if (pCECS == NULL) Initialize(NULL, NULL, NULL);
+	return &pCECS->cecs_mutex;
 }

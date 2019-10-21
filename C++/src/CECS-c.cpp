@@ -41,9 +41,9 @@ static sCECS CECS = {
 	_ECS_SFINIT(ErrorLength, CECS__FERRORL),
 	_ECS_SFINIT(MaxErrors, CECS__MAXERRORS),
 	_ECS_SFINIT(RefCounter, 0),
-#ifdef ENABLE_PTHREAD_SUPPORT
-	_ECS_SFINIT(q_mtx, PTHREAD_MUTEX_INITIALIZER),
-#endif
+	_ECS_SFINIT(cecs_lock, NULL),
+	_ECS_SFINIT(cecs_unlock, NULL),
+	_ECS_SFINIT(cecs_mutex, NULL),
 #ifdef CECSDEBUG
 	_ECS_SFINIT(sigArray, {0}),
 	_ECS_SFINIT(nsigArray, 0),
@@ -225,6 +225,9 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	pcecs->SErrIDs  = NULL;
 	pcecs->DispStr  = NULL;
 	pcecs->MErrors  = NULL;
+	pcecs->cecs_lock   = NULL;
+	pcecs->cecs_unlock = NULL;
+	pcecs->cecs_mutex  = NULL;
 #ifdef CECSDEBUG
 		pCECS->nsigArray = 0;
 #endif
@@ -251,7 +254,7 @@ sCECS* CECS_CheckIfInit(sCECS* pcecs, const char* msg) {
 	if (pCECS->SErrors == NULL) { CECS_Initialize(NULL, pCECS, 0); isInit = -1; }
 	if (isInit == -1) {
 		CECS_RecError(pCECS,
-			CECS__ERRORID, 0, __FNAME__, __LINE__,
+			CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 			"%s: CECS was Not Initialized!", msg
 		);
 	}
@@ -271,11 +274,7 @@ sCECS* CECS_RecErrorMod(
 	pCECS = CECS_CheckIfInit(pcecs, "CECS_RecError/Mod()");
 	unsigned char FS = pCECS->SetupFlag;
 	if (FS & 0x10) {
-		#ifdef ENABLE_PTHREAD_SUPPORT
-			char vaStr[CECS__FERRORL]={0};
-		#else
-			static char vaStr[CECS__FERRORL]={0};
-		#endif
+		char vaStr[CECS__FERRORL]={0};
 		int len = 0;
 		va_list(vargs);
 		va_start(vargs, msg);
@@ -306,9 +305,7 @@ sCECS* CECS_RecErrorMod_NoList(
 	int idx = 0;
 	unsigned char FS = 0;
 	pCECS = CECS_CheckIfInit(pcecs, "CECS_RecError/Mod()");
-	#ifdef ENABLE_PTHREAD_SUPPORT
-		pthread_mutex_lock(&pCECS->q_mtx);
-	#endif
+	if (NULL!=pCECS->cecs_lock) pCECS->cecs_lock();
 	if (pCECS->NErrors < pCECS->MaxErrors-1) {
 		idx = pCECS->NErrors++;
 		FS = pCECS->SetupFlag;
@@ -344,9 +341,7 @@ sCECS* CECS_RecErrorMod_NoList(
 		if (FS & 0x20) // <<5: module
 			strncpy(pCECS->MErrors[idx], modName, CECS__MODNAMELENGTH);
 	}
-	#ifdef ENABLE_PTHREAD_SUPPORT
-		pthread_mutex_unlock(&pCECS->q_mtx);
-	#endif
+	if (NULL!=pCECS->cecs_unlock) pCECS->cecs_unlock();
   return pCECS;
 }
 
@@ -360,11 +355,7 @@ sCECS* CECS_RecError(
 	...
 ) {
 	sCECS* ret;
-	#ifdef ENABLE_PTHREAD_SUPPORT
-		char vaStr[CECS__FERRORL]={0};
-	#else
-		static char vaStr[CECS__FERRORL]={0};
-	#endif
+	char vaStr[CECS__FERRORL]={0};
 	int len = 0;
 	va_list(vargs);
 	va_start(vargs, msg);
@@ -409,7 +400,7 @@ const char* CECS_getErrorStr(sCECS* pcecs, int id) {
 		if (id < 0) {
 			id = 0;
 			CECS_RecError(pCECS,
-				CECS__ERRORID, 0, __FNAME__, __LINE__,
+				CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 				"CECS_getErrorStr(): CECS had no errors recorded!"
 			);
 		}
@@ -431,7 +422,7 @@ int CECS_getErrorId(sCECS* pcecs, int id) {
 		if (id < 0) {
 			id = 0;
 			CECS_RecError(pCECS,
-				CECS__ERRORID, 0, __FNAME__, __LINE__,
+				CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 				"CECS_getErrorId(): CECS had no errors recorded!"
 			);
 		}
@@ -447,7 +438,7 @@ int CECS_getErrorType(sCECS* pcecs, int id) {
 		if (id < 0) {
 			id = 0;
 			CECS_RecError(pCECS,
-				CECS__ERRORID, 0, __FNAME__, __LINE__,
+				CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 				"CECS_getErrorType(): CECS had no errors recorded!"
 			);
 		}
@@ -463,7 +454,7 @@ const char* CECS_getErrorFile(sCECS* pcecs, int id) {
 		if (id < 0) {
 			id = 0;
 			CECS_RecError(pCECS,
-				CECS__ERRORID, 0, __FNAME__, __LINE__,
+				CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 				"CECS_getErrorFile(): CECS had no errors recorded!"
 			);
 		}
@@ -479,7 +470,7 @@ const char* CECS_getErrorMod(sCECS* pcecs, int id) {
 		if (id < 0) {
 			id = 0;
 			CECS_RecError(pCECS,
-				CECS__ERRORID, 0, __FNAME__, __LINE__,
+				CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 				"CECS_getErrorMod(): CECS had no errors recorded!"
 			);
 		}
@@ -495,7 +486,7 @@ unsigned int CECS_getErrorLine(sCECS* pcecs, int id) {
 		if (id < 0) {
 			id = 0;
 			CECS_RecError(pCECS,
-				CECS__ERRORID, 0, __FNAME__, __LINE__,
+				CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 				"CECS_getErrorLine(): CECS had no errors recorded!"
 			);
 		}
@@ -645,28 +636,63 @@ void CECS_HandleSignal(int SignalId, sCECS* pcecs) {
 #ifdef CECSDEBUG
 	if (pCECS->nsigArray >= 32) {
 		CECS_RecError(pCECS,
-			CECS__ERRORID, 0, __FNAME__, __LINE__,
+			CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 			"CECS_HandleSignal(): 32 Signals has been registered. Can't register more!"
 		);
 	}
-	#ifdef ENABLE_PTHREAD_SUPPORT
-		pthread_mutex_lock(&pCECS->q_mtx);
-	#endif
+	if (NULL!=pCECS->cecs_lock) pCECS->cecs_lock();
 	if (SIG_ERR != signal( SignalId, CECS_SigHandler)) {
 		pCECS->sigArray[pCECS->nsigArray++] = SignalId;
-		#ifdef ENABLE_PTHREAD_SUPPORT
-			pthread_mutex_unlock(&pCECS->q_mtx);
-		#endif
+		if (NULL!=pCECS->cecs_unlock) pCECS->cecs_unlock();
 	} else {
-		#ifdef ENABLE_PTHREAD_SUPPORT
-			pthread_mutex_unlock(&pCECS->q_mtx);
-		#endif
+		if (NULL!=pCECS->cecs_unlock) pCECS->cecs_unlock();
 		CECS_RecError(pCECS,
-			CECS__ERRORID, 0, __FNAME__, __LINE__,
+			CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
 			"CECS_HandleSignal(): Signal [%i] failed to be registered!", SignalId
 		);
 	}
 #endif
+}
+
+/**
+ *  \brief Set a function to be called when threads-locking is required.
+ *  \param [in] pcecs Pointer to Linked CECS object.
+ *  \param [in] Pointer to a function of type void f(void)
+ *  \return The pointer to the Linked CECS object.
+ */
+sCECS* CECS_SetFunc_Lock(
+	sCECS* pcecs,
+	void (*func)(void)
+) {
+	pCECS = CECS_CheckIfInit(pcecs, "CECS_SetFunc_Lock()");
+	if (NULL!=pCECS->cecs_lock) {
+		CECS_RecError(pCECS,
+			CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
+			"CECS_SetFunc_Lock(): CECS has already a threads Lock function!"
+		);
+	}
+	pCECS->cecs_lock = func;
+	return pCECS;
+}
+
+/**
+ *  \brief Set a function to be called when threads-unlocking is required.
+ *  \param [in] Pointer to a function of type void f(void)
+ *  \return The pointer to the Linked CECS object.
+ */
+sCECS* CECS_SetFunc_Unlock(
+	sCECS* pcecs,
+	void (*func)(void)
+) {
+	pCECS = CECS_CheckIfInit(pcecs, "CECS_SetFunc_Unlock()");
+	if (NULL!=pCECS->cecs_unlock) {
+		CECS_RecError(pCECS,
+			CECS__ERRORID, _CECS_ERRTYPE_ERROR, __FNAME__, __LINE__,
+			"CECS_SetFunc_Unlock(): CECS has already a threads Unlock function!"
+		);
+	}
+	pCECS->cecs_unlock = func;
+	return pCECS;
 }
 
 #ifdef __cplusplus
