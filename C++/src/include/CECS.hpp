@@ -190,6 +190,12 @@ the function. If need client-specific macros can also be created.
 		#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
 		#define _SETSIGNAL(Signal) { /* dummy */ }
 	#endif
+	#define _CERRT(args...) _ERRT(0!=_NERR_, args)
+	#define _CERR(args...) _ERR (0!=_NERR_, args)
+	#define _CERRI(args...) _ERRI(0!=_NERR_, args)
+	#define _CERRN(args...) _ERRN(0!=_NERR_, args)
+	#define _CERRB(args...) _ERRB(0!=_NERR_, args)
+	#define _CERRL(args...) _ERRL(0!=_NERR_, args)
 #endif
 #ifdef _MSC_VER
 	// Using client error-id
@@ -297,7 +303,14 @@ the function. If need client-specific macros can also be created.
 		#define _CHECKRL_ CECS_CHECKERRL(__ECSOBJ__)
 		#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
 		#define _SETSIGNAL(Signal) { /* dummy */ }
+		#define _CERRO(__UserReturn__, ...) CECS_ERRO(__ECSOBJ__, ExpR, __UserReturn__, __VA_ARGS__)
 	#endif
+	#define _CERRT(...) _ERRT(0!=_NERR_, __VA_ARGS__)
+	#define _CERR(...) _ERR (0!=_NERR_, __VA_ARGS__)
+	#define _CERRI(...) _ERRI(0!=_NERR_, __VA_ARGS__)
+	#define _CERRN(...) _ERRN(0!=_NERR_, __VA_ARGS__)
+	#define _CERRB(...) _ERRB(0!=_NERR_, __VA_ARGS__)
+	#define _CERRL(...) _ERRL(0!=_NERR_, __VA_ARGS__)
 #endif
 
 
