@@ -73,6 +73,8 @@ the function. If need client-specific macros can also be created.
 #define CECS_SETFUNC_LOCK(func) __ECSOBJ__.SetFunc_Lock((func))
 #define CECS_SETFUNC_UNLOCK(func) __ECSOBJ__.SetFunc_Unlock((func))
 #define CECS_MUTEXPTR __ECSOBJ__.getMutexPtr()
+#define _NERR_ (__ECSOBJ__.GetNumberOfErrors())
+#define _NERR(x) (__ECSOBJ__.GetNumberOfErrors(x))
 
 #define __CECS_IRETURN__(ErrID) return (ErrID);
 #define __CECS_RETURN__ return;

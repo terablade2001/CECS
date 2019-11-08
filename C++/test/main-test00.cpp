@@ -87,7 +87,7 @@ int main(int argc, char **argv)
 			}
 			ss << "... debug data done!";
 		}))
-		_CHECKRT_
+		_ERRT(_NERR_,"Errors captured. Program failed!")
 		cout << "Test Completed Succesfully!" << endl;
 	} catch(std::exception &e) {
 		 std::cout<< std::endl<<"(*) Exception occured: "<< std::endl << e.what() << std::endl;
