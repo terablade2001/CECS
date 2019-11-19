@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.124)
+#define CECS__VERSION (0.125)
 
 #define CECS__MAXERRORS (1024)
 #define CECS__ERRORID (-10000)
