@@ -58,22 +58,95 @@ extern "C" {
 #ifdef CECSDEBUG
 static void CECS_SigHandler( int signum ) {
 	static char SigErrStr[8] = {0};
+	static char SigErrCECSStr[(CECS__MAXERRORS+7) * CECS__FERRORL] = {0};
+	const int MAXL = CECS__MAXERRORS * CECS__FERRORL;
 	write(2,"(*) Exception occurred: System: SIGNAL [",40);
 	switch( signum )
 	{
-		case SIGABRT: write(2,"SIGABRT]\n",9);  break;
-		case SIGILL : write(2,"SIGILL ]\n",9);  break;
-		case SIGFPE : write(2,"SIGFPE ]\n",9);  break;
-		case SIGSEGV: write(2,"SIGSEGV]\n",9);  break;
+		case SIGABRT: write(2,"SIGABRT]\r\n",9);  break;
+		case SIGILL : write(2,"SIGILL ]\r\n",9);  break;
+		case SIGFPE : write(2,"SIGFPE ]\r\n",9);  break;
+		case SIGSEGV: write(2,"SIGSEGV]\r\n",9);  break;
 		default:
-			snprintf(SigErrStr,7,"%2.1i]\n",signum);
+			snprintf(SigErrStr,7,"%2.1i]\r\n",signum);
 			write(2,SigErrStr,4);
 			break;
 	}
-	const char* str = CECS_str(pCECS, _CECS_ERRTYPE_ALL);
-	int n = 0;
-	while (str[n] != 0) n++;
-	write(2,str,n);
+	
+	if (pCECS != nullptr) {
+		char* outPtr = SigErrCECSStr;
+		unsigned char FS = pCECS->SetupFlag;
+		int l=0;
+		
+		l = snprintf(outPtr,MAXL,
+			"-------------------------------------------------------\r\n"
+			"::    CECS (C/C++ Error Control System) v[%5.3f]     ::\r\n"
+			"::        www.github.com/terablade2001/CECS          ::\r\n"
+			"-------------------------------------------------------\r\n"
+			"======= (%s):: [%i] Record(s) for CECSDEBUG Signal =======\r\n",
+			CECS__VERSION, pCECS->Name, pCECS->NErrors
+		);
+		if (l >= 0) {
+			int lc = 0;
+			outPtr += l; lc+=l;
+			for (int i = 0; i < pCECS->NErrors; i++) {
+				int errtype = pCECS->TErrors[i];
+				#define arsz (16)
+				#define ars (arsz-1)
+				static char serrtype [arsz]={0};
+				switch (errtype) {
+					case _CECS_ERRTYPE_ERROR   : snprintf(serrtype, ars ,"ERROR  "); break;
+					case _CECS_ERRTYPE_WARNING : snprintf(serrtype, ars ,"WARNING"); break;
+					case _CECS_ERRTYPE_INFO    : snprintf(serrtype, ars ,"INFO   "); break;
+					case _CECS_ERRTYPE_DEBUG   : snprintf(serrtype, ars ,"DEBUG  "); break;
+					case _CECS_ERRTYPE_ERRINFO : snprintf(serrtype, ars ,"ERRINF "); break;
+					case _CECS_ERRTYPE_ERRSTR  : snprintf(serrtype, ars ,"ERRSTR "); break;
+					case _CECS_ERRTYPE_SIGDBG  : snprintf(serrtype, ars ,"SIG-DBG"); break;
+					case _CECS_ERRTYPE_ERRLOG  : snprintf(serrtype, ars ,"ERR-LOG"); break;
+					default                    : snprintf(serrtype, ars ,"-OTHER-");
+				}
+				#undef ars
+				#undef arsz
+				l = snprintf(outPtr, MAXL-lc,"= [%s]> ",serrtype);
+				if (l < 0) break; outPtr += l; lc+=l;
+				
+				if (FS & 0x20) {
+					l = snprintf(outPtr, MAXL-lc, "#%s: ",pCECS->MErrors[i]);
+					if (l < 0) break; outPtr += l; lc+=l;
+				}
+				if (FS & 0x01) {
+					l = snprintf(outPtr, MAXL-lc, "%i | ",pCECS->IErrors[i]);
+					if (l < 0) break; outPtr += l; lc+=l;
+				}
+				if (FS & 0x04) {
+					l = snprintf(outPtr, MAXL-lc, "[%s], ",pCECS->FErrors[i]);
+					if (l < 0) break; outPtr += l; lc+=l;
+				}
+				if (FS & 0x08) {
+					l = snprintf(outPtr, MAXL-lc, "%i |>  ",pCECS->LErrors[i]);
+					if (l < 0) break; outPtr += l; lc+=l;
+				}
+				if (FS & 0x10) {
+					if (pCECS->SErrors[i] == nullptr) {
+						l = snprintf(outPtr, MAXL-lc, "[CECS NULL]");
+					} else {
+						l = snprintf(outPtr, MAXL-lc, "%s", pCECS->SErrors[i]);
+					}
+					if (l < 0) break; outPtr += l; lc+=l;
+				}
+				l = snprintf(outPtr, MAXL-lc, "\r\n");
+				if (l < 0) break; outPtr += l; lc+=l;
+			}
+			l = snprintf(outPtr, MAXL-lc, "=======================================================\r\n");
+			if (l > 0) { outPtr += l; lc+=l; }
+			write(2,SigErrCECSStr,lc);
+		}
+	}
+
+	// const char* str = CECS_str(pCECS, _CECS_ERRTYPE_ALL);
+	// int n = 0;
+	// while (str[n] != 0) n++;
+	// write(2,str,n);
 
   _exit( signum );
 }
@@ -331,10 +404,11 @@ sCECS* CECS_RecErrorMod_NoList(
 			{
 				pCECS->SErrorsL[idx] = sizeof(char)*(msgSize+2); 
 				pCECS->SErrors[idx] = (char*)calloc(pCECS->SErrorsL[idx], 1);
-				if (pCECS->SErrors[idx] != NULL)
+				if (pCECS->SErrors[idx] != NULL) {
 					memcpy(pCECS->SErrors[idx], msg, sizeof(char)*msgSize);
-				else
+				} else {
 					pCECS->SErrorsL[idx] = 0;
+				}
 			}
 		}
 		

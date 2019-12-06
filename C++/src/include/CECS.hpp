@@ -158,13 +158,20 @@ the function. If need client-specific macros can also be created.
 		#define _INFOO(ExpR, __UserReturn__, args...) { _SIGDBG(args) CECS_INFOO(__ECSOBJ__, ExpR, __UserReturn__, args) }
 		#define _DEBUGO(ExpR, __UserReturn__, args...) { _SIGDBG(args) CECS_DEBUGO(__ECSOBJ__, ExpR, __UserReturn__, args) }
 		#define _CHECKRT_ { _SIGDBG("CECS_CHECKERROR: _CHECKRT_") CECS_CHECKERRT(__ECSOBJ__) }
-		#define _CHECKR_  { _SIGDBG("CECS_CHECKERROR: _CHECKR_") CECS_CHECKERR(__ECSOBJ__) }
+		#define _CHECKR_  { _SIGDBG("CECS_CHECKERROR: _CHECKR_")  CECS_CHECKERR(__ECSOBJ__) }
 		#define _CHECKRI_ { _SIGDBG("CECS_CHECKERROR: _CHECKRI_") CECS_CHECKERRI(__ECSOBJ__) }
 		#define _CHECKRN_ { _SIGDBG("CECS_CHECKERROR: _CHECKRN_") CECS_CHECKERRN(__ECSOBJ__) }
 		#define _CHECKRB_ { _SIGDBG("CECS_CHECKERROR: _CHECKRB_") CECS_CHECKERRB(__ECSOBJ__) }
 		#define _CHECKRL_ { _SIGDBG("CECS_CHECKERROR: _CHECKRL_") CECS_CHECKERRL(__ECSOBJ__) }
 		#define _CHECKRO_(__UserReturn__) { _SIGDBG("CECS_CHECKERROR: _CHECKRO_")  CECS_CHECKERRO(__ECSOBJ__, __UserReturn__) }
 		#define _SETSIGNAL(Signal) __ECSOBJ__.SetSignal(Signal);
+		#define _CERRT(args...) { _SIGDBG(args) _ERRT(0!=_NERR_, args) }
+		#define _CERR(args...)  { _SIGDBG(args) _ERR (0!=_NERR_, args) }
+		#define _CERRI(args...) { _SIGDBG(args) _ERRI(0!=_NERR_, args) }
+		#define _CERRN(args...) { _SIGDBG(args) _ERRN(0!=_NERR_, args) }
+		#define _CERRB(args...) { _SIGDBG(args) _ERRB(0!=_NERR_, args) }
+		#define _CERRL(args...) { _SIGDBG(args) _ERRL(0!=_NERR_, args) }
+		#define _CERRO(__UserReturn__, args...) { _SIGDBG(args) _ERRO(0!=_NERR_, __UserReturn__, args) }
 	#else
 		#define _SIGDBG(args...) { /* dummy */ }
 		#define _ERRT(ExpR, args...) CECS_ERRT(__ECSOBJ__, ExpR, args)
@@ -189,14 +196,14 @@ the function. If need client-specific macros can also be created.
 		#define _CHECKRL_ CECS_CHECKERRL(__ECSOBJ__)
 		#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
 		#define _SETSIGNAL(Signal) { /* dummy */ }
+		#define _CERRT(args...) _ERRT(0!=_NERR_, args)
+		#define _CERR(args...) _ERR (0!=_NERR_, args)
+		#define _CERRI(args...) _ERRI(0!=_NERR_, args)
+		#define _CERRN(args...) _ERRN(0!=_NERR_, args)
+		#define _CERRB(args...) _ERRB(0!=_NERR_, args)
+		#define _CERRL(args...) _ERRL(0!=_NERR_, args)
+		#define _CERRO(__UserReturn__, args...) _ERRO(0!=_NERR_, __UserReturn__, args)
 	#endif
-	#define _CERRT(args...) _ERRT(0!=_NERR_, args)
-	#define _CERR(args...) _ERR (0!=_NERR_, args)
-	#define _CERRI(args...) _ERRI(0!=_NERR_, args)
-	#define _CERRN(args...) _ERRN(0!=_NERR_, args)
-	#define _CERRB(args...) _ERRB(0!=_NERR_, args)
-	#define _CERRL(args...) _ERRL(0!=_NERR_, args)
-	#define _CERRO(__UserReturn__, args...) _ERRO(0!=_NERR_, __UserReturn__, args)
 #endif
 #ifdef _MSC_VER
 	// Using client error-id
@@ -280,6 +287,13 @@ the function. If need client-specific macros can also be created.
 		#define _CHECKRL_ { _SIGDBG("CECS_CHECKERROR: _CHECKRL_") CECS_CHECKERRL(__ECSOBJ__) }
 		#define _CHECKRO_(__UserReturn__) { _SIGDBG("CECS_CHECKERROR: _CHECKRO_")  CECS_CHECKERRO(__ECSOBJ__, __UserReturn__) }
 		#define _SETSIGNAL(Signal) __ECSOBJ__.SetSignal(Signal);
+		#define _CERRT(...) { _SIGDBG(__VA_ARGS__) _ERRT(0!=_NERR_, __VA_ARGS__) }
+		#define _CERR(...)  { _SIGDBG(__VA_ARGS__) _ERR (0!=_NERR_, __VA_ARGS__) }
+		#define _CERRI(...) { _SIGDBG(__VA_ARGS__) _ERRI(0!=_NERR_, __VA_ARGS__) }
+		#define _CERRN(...) { _SIGDBG(__VA_ARGS__) _ERRN(0!=_NERR_, __VA_ARGS__) }
+		#define _CERRB(...) { _SIGDBG(__VA_ARGS__) _ERRB(0!=_NERR_, __VA_ARGS__) }
+		#define _CERRL(...) { _SIGDBG(__VA_ARGS__) _ERRL(0!=_NERR_, __VA_ARGS__) }
+		#define _CERRO(__UserReturn__, ...) { _SIGDBG(__VA_ARGS__) _ERRO(0!=_NERR_, __UserReturn__, __VA_ARGS__) }
 	#else
 		#define _SIGDBG(...) { /* dummy */ }
 		#define _ERRT(ExpR, ...) CECS_ERRT(__ECSOBJ__, ExpR, __VA_ARGS__)
@@ -304,14 +318,15 @@ the function. If need client-specific macros can also be created.
 		#define _CHECKRL_ CECS_CHECKERRL(__ECSOBJ__)
 		#define _CHECKRO_(__UserReturn__) CECS_CHECKERRO(__ECSOBJ__, __UserReturn__)
 		#define _SETSIGNAL(Signal) { /* dummy */ }
+		#define _CERRT(...) _ERRT(0!=_NERR_, __VA_ARGS__)
+		#define _CERR(...) _ERR (0!=_NERR_, __VA_ARGS__)
+		#define _CERRI(...) _ERRI(0!=_NERR_, __VA_ARGS__)
+		#define _CERRN(...) _ERRN(0!=_NERR_, __VA_ARGS__)
+		#define _CERRB(...) _ERRB(0!=_NERR_, __VA_ARGS__)
+		#define _CERRL(...) _ERRL(0!=_NERR_, __VA_ARGS__)
+		#define _CERRO(__UserReturn__, ...) _ERRO(0!=_NERR_, __UserReturn__, __VA_ARGS__)
 	#endif
-	#define _CERRT(...) _ERRT(0!=_NERR_, __VA_ARGS__)
-	#define _CERR(...) _ERR (0!=_NERR_, __VA_ARGS__)
-	#define _CERRI(...) _ERRI(0!=_NERR_, __VA_ARGS__)
-	#define _CERRN(...) _ERRN(0!=_NERR_, __VA_ARGS__)
-	#define _CERRB(...) _ERRB(0!=_NERR_, __VA_ARGS__)
-	#define _CERRL(...) _ERRL(0!=_NERR_, __VA_ARGS__)
-	#define _CERRO(__UserReturn__, ...) _ERRO(0!=_NERR_, __UserReturn__, __VA_ARGS__)
+
 #endif
 
 

@@ -24,9 +24,13 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.125)
+#define CECS__VERSION (0.126)
 
-#define CECS__MAXERRORS (1024)
+#ifndef CECSDEBUG
+	#define CECS__MAXERRORS (1024)
+#else
+	#define CECS__MAXERRORS (65536)
+#endif
 #define CECS__ERRORID (-10000)
 #define CECS__ECSNAMELENGTH (64)
 #define CECS__MODNAMELENGTH (64)
