@@ -34,8 +34,10 @@
 #include <vector>
 #include <sstream>
 #include <stdexcept>
-#include <cstring>
+#include <cstdint>
 
+// #define dbg_SHOW_INFO 2
+#define dbg_SHOW_ID (uint64_t(0b0001) | (uint64_t(1)<<63))
 
 #ifndef __CECS__HEADER__
 extern "C" {
@@ -327,6 +329,24 @@ the function. If need client-specific macros can also be created.
 		#define _CERRO(__UserReturn__, ...) _ERRO(0!=_NERR_, __UserReturn__, __VA_ARGS__)
 	#endif
 
+#endif
+
+
+#ifndef dbg_SHOW_INFO
+	#define dbg_SHOW_INFO 0
+#endif
+#if (dbg_SHOW_INFO==2)
+  #define dbg_(id, str) if (((uint64_t(1) << id) & dbg_SHOW_ID) != 0) cout<<"<"<<id<<", "<<__FNAME__<<", L-"<<__LINE__<<">: "<<str<<endl;
+  #define dbg_c(id, expr, str) if (((uint64_t(1) << id) & dbg_SHOW_ID) != 0) { if(expr) cout<<"<"<<id<<", ["<<#expr<<"], "<<__FNAME__<<", L-"<<__LINE__<<">: "<<str<<endl; }
+  #define dbg__(id, str, info) if (((uint64_t(1) << id) & dbg_SHOW_ID) != 0) { if(info != 0) cout<<"<"<<id<<", "<<__FNAME__<<", L-"<<__LINE__<<">: "; cout<<str; }
+#elif (dbg_SHOW_INFO==1)
+  #define dbg_(id, str) if (((uint64_t(1) << id) & dbg_SHOW_ID) != 0) cout<<str<<endl;
+  #define dbg_c(id, expr, str) if (((uint64_t(1) << id) & dbg_SHOW_ID) != 0) { if (expr) cout<<"["<<#expr<<"]: "<<str<<endl; }
+  #define dbg__(id, str, info) if (((uint64_t(1) << id) & dbg_SHOW_ID) != 0) cout<<str;
+#else
+  #define dbg_(id, str) { /* */ }
+  #define dbg_c(id, expr, str) { /* */ }
+  #define dbg__(id, str, info) { /* */ }
 #endif
 
 
