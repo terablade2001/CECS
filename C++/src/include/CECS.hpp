@@ -68,6 +68,8 @@ the function. If need client-specific macros can also be created.
 */
 #define CECS_MODULE(moduleName) static CECS __ECSOBJ__(moduleName);
 #define CECS_MAIN_MODULE(moduleName, cecsName) static CECS __ECSOBJ__(moduleName, cecsName);
+#define CECS_EXT_MODULE(moduleName, cecsPtr) static CECS __ECSOBJ__(moduleName,nullptr,cecsPtr);
+#define CECS_EXT_MAIN_MODULE(moduleName, cecsName, cecsPtr) static CECS __ECSOBJ__(moduleName, cecsName,cecsPtr);
 #define _ECSCLS_ { __ECSOBJ__.clear(); }
 #define _ECSFORMAT(display, errId, srcFile, srcLine, msg, module, cecsInfo, trackErrors) {\
 	__ECSOBJ__.FormatReport((display),(errId),(srcFile),(srcLine),(msg),(module),(cecsInfo),(trackErrors));\
