@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
+// Copyright (c) 2016-2020 Vasileios Kon. Pothos (terablade2001)
 // https://github.com/terablade2001/CECS
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -132,8 +132,8 @@ void CECS::throwErrors(int type) {
 	}
 }
 
-void CECS::clear(void) {
-	CECS_clear(pCECS);
+void CECS::clear(int numberOfLatestRecords) {
+	CECS_clear(pCECS, numberOfLatestRecords);
 }
 
 int CECS::GetNumberOfErrors(int type){

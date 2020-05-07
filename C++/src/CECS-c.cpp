@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
+// Copyright (c) 2016-2020 Vasileios Kon. Pothos (terablade2001)
 // https://github.com/terablade2001/CECS
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -72,12 +72,12 @@ static void CECS_SigHandler( int signum ) {
 			write(2,SigErrStr,4);
 			break;
 	}
-	
+
 	if (pCECS != nullptr) {
 		char* outPtr = SigErrCECSStr;
 		unsigned char FS = pCECS->SetupFlag;
 		int l=0;
-		
+
 		l = snprintf(outPtr,MAXL,
 			"-------------------------------------------------------\r\n"
 			"::    CECS (C/C++ Error Control System) v[%5.3f]     ::\r\n"
@@ -109,7 +109,7 @@ static void CECS_SigHandler( int signum ) {
 				#undef arsz
 				l = snprintf(outPtr, MAXL-lc,"= [%s]> ",serrtype);
 				if (l < 0) break; outPtr += l; lc+=l;
-				
+
 				if (FS & 0x20) {
 					l = snprintf(outPtr, MAXL-lc, "#%s: ",pCECS->MErrors[i]);
 					if (l < 0) break; outPtr += l; lc+=l;
@@ -174,17 +174,17 @@ sCECS* CECS_Initialize(const char* name, sCECS* pcecs, int replaceName) {
 		else snprintf(pCECS->Name, CECS__ECSNAMELENGTH, "CECS-UnNamed");
 	}
 
-/*	C Version: Any call to Shutdown should be set RefCounter to 0, and thus 
-clean up the memory. For this reason RefCounter should take values 0 and 1. 
-In case value 1 is taken, then no reinitialization is need. This is due to 
-the fact that there are no destructors in C, thus client should have to call 
-Shutdown for any Initialize() (Like in C++ version). However this make it 
+/*	C Version: Any call to Shutdown should be set RefCounter to 0, and thus
+clean up the memory. For this reason RefCounter should take values 0 and 1.
+In case value 1 is taken, then no reinitialization is need. This is due to
+the fact that there are no destructors in C, thus client should have to call
+Shutdown for any Initialize() (Like in C++ version). However this make it
 more complex for the client. In C Version client should use Shutdown only when
-CECS-Internal is not going to be used anymore, where in C++ Version Shutdown 
+CECS-Internal is not going to be used anymore, where in C++ Version Shutdown
 is called for every Initialize call.
-	C++ Version: As each CECS class destructor calls Shutdown(), the 
-RefCounter must be increased by the number of times a Constructor initialize 
-the CECS-Internal. In this way, when all classes that use CECS-Internal are 
+	C++ Version: As each CECS class destructor calls Shutdown(), the
+RefCounter must be increased by the number of times a Constructor initialize
+the CECS-Internal. In this way, when all classes that use CECS-Internal are
 destructed then the CECS-Internal is free.
 */
 	#ifndef __cplusplus
@@ -196,7 +196,7 @@ destructed then the CECS-Internal is free.
 	#endif
 
 	MaxErrors = pCECS->MaxErrors;
-	
+
 
 	//@#| ############### Allocate Memory ###############
 
@@ -214,7 +214,7 @@ destructed then the CECS-Internal is free.
 
 	if (pCECS->IErrors == NULL)
 		pCECS->IErrors = (int*) calloc(MaxErrors, sizeof(int));
-	
+
 	if (pCECS->TErrors == NULL)
 		pCECS->TErrors = (int*) calloc(MaxErrors, sizeof(int));
 
@@ -246,7 +246,7 @@ sCECS* CECS_Shutdown(sCECS* pcecs) {
 	int i = 0;
 	int MaxErrors = 0;
 	if (pcecs == NULL) pcecs = pCECS;
-	
+
 	if (pcecs->RefCounter > 0) pcecs->RefCounter--;
 
 	if (pcecs->RefCounter > 0) return pCECS;
@@ -402,7 +402,7 @@ sCECS* CECS_RecErrorMod_NoList(
 				pCECS->SErrors[idx] = NULL;
 			else
 			{
-				pCECS->SErrorsL[idx] = sizeof(char)*(msgSize+2); 
+				pCECS->SErrorsL[idx] = sizeof(char)*(msgSize+2);
 				pCECS->SErrors[idx] = (char*)calloc(pCECS->SErrorsL[idx], 1);
 				if (pCECS->SErrors[idx] != NULL) {
 					memcpy(pCECS->SErrors[idx], msg, sizeof(char)*msgSize);
@@ -411,7 +411,7 @@ sCECS* CECS_RecErrorMod_NoList(
 				}
 			}
 		}
-		
+
 		if (FS & 0x20) // <<5: module
 			strncpy(pCECS->MErrors[idx], modName, CECS__MODNAMELENGTH);
 	}
@@ -439,7 +439,7 @@ sCECS* CECS_RecError(
 	ret = CECS_RecErrorMod_NoList(
 		pcecs, "Mod-Default", errid, type, fname, line, vaStr, len
 	);
-	return ret; 
+	return ret;
 }
 
 int CECS_GetNumberOfAllErrors(sCECS* pcecs) {
@@ -614,7 +614,7 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 		strncat(str, devBuff, maxstrprint);
 		return str;
 	}
-	
+
 
 	if (typeId == _CECS_ERRTYPE_ALL) {
 		snprintf(devBuff, CECS__FERRORL-1,
@@ -700,9 +700,13 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	return str;
 }
 
-void CECS_clear(sCECS* pcecs) {
+void CECS_clear(sCECS* pcecs, int numberOfLatestRecords) {
 	CECS_CheckIfInit(pcecs, "CECS_str()");
-	pCECS->NErrors = 0;
+	if (numberOfLatestRecords < 0) pCECS->NErrors = 0;
+	else {
+		pCECS->NErrors -= numberOfLatestRecords;
+		if (pCECS->NErrors < 0) pCECS->NErrors = 0;
+	}
 }
 
 void CECS_HandleSignal(int SignalId, sCECS* pcecs) {

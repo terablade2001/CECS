@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
+// Copyright (c) 2016-2020 Vasileios Kon. Pothos (terablade2001)
 // https://github.com/terablade2001/CECS
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -61,9 +61,9 @@ extern "C" {
 using namespace std;
 
 /* Modify these defines for the selected behaviour.
-I.e. the macros that are using client-specific error-id, now are returning 
-the id and returns from the function that the error-check is executed. In 
-contrast the macros that are using internal error-id, does not return from 
+I.e. the macros that are using client-specific error-id, now are returning
+the id and returns from the function that the error-check is executed. In
+contrast the macros that are using internal error-id, does not return from
 the function. If need client-specific macros can also be created.
 */
 #define CECS_MODULE(moduleName) static CECS __ECSOBJ__(moduleName);
@@ -71,6 +71,7 @@ the function. If need client-specific macros can also be created.
 #define CECS_EXT_MODULE(moduleName, cecsPtr) static CECS __ECSOBJ__(moduleName,nullptr,cecsPtr);
 #define CECS_EXT_MAIN_MODULE(moduleName, cecsName, cecsPtr) static CECS __ECSOBJ__(moduleName, cecsName,cecsPtr);
 #define _ECSCLS_ { __ECSOBJ__.clear(); }
+#define _ECSCLS(numberOfLatestRecords) { __ECSOBJ__.clear((numberOfLatestRecords)); }
 #define _ECSFORMAT(display, errId, srcFile, srcLine, msg, module, cecsInfo, trackErrors) {\
 	__ECSOBJ__.FormatReport((display),(errId),(srcFile),(srcLine),(msg),(module),(cecsInfo),(trackErrors));\
 }
@@ -143,7 +144,7 @@ the function. If need client-specific macros can also be created.
 		CECS_ERRL((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Error Logged.")
 	#define CECS_CHECKERRO(Obj, __UserReturn__) \
 		CECS_ERRO((Obj), (Obj).GetNumberOfErrors() != 0, __UserReturn__, "CECS_CHECKERROR captured: __UserReturn__ code executed!.")
-		
+
 	#ifdef CECSDEBUG
 		#define _SIGDBG(args...) CECS_SIGDEBUG(__ECSOBJ__, 1, args)
 		#define _ERRT(ExpR, args...) { _SIGDBG(args) CECS_ERRT(__ECSOBJ__, ExpR, args) }
@@ -265,7 +266,7 @@ the function. If need client-specific macros can also be created.
 		CECS_ERRL((Obj), (Obj).GetNumberOfErrors() != 0, "CECS_CHECKERROR captured: Error Logged.")
 	#define CECS_CHECKERRO(Obj, __UserReturn__) \
 		CECS_ERRO((Obj), (Obj).GetNumberOfErrors() != 0, __UserReturn__, "CECS_CHECKERROR captured: __UserReturn__ code executed!.")
-		
+
 	#ifdef CECSDEBUG
 		#define _SIGDBG(...) CECS_SIGDEBUG(__ECSOBJ__, 1, __VA_ARGS__)
 		#define _ERRT(ExpR, ...) { _SIGDBG(__VA_ARGS__) CECS_ERRT(__ECSOBJ__, ExpR, __VA_ARGS__) }
@@ -384,7 +385,7 @@ public:
 	const char* name(void);
 	const char* modname(void);
 	void throwErrors(int type=_CECS_ERRTYPE_ALL);
-	void clear(void);
+	void clear(int numberOfLatestRecords = -1);
 	int GetNumberOfErrors(int type=_CECS_ERRTYPE_ERROR);
 	void* cecs(void);
 	void SetSignal(int signalId);

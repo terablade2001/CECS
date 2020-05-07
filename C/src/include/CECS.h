@@ -1,6 +1,6 @@
 // MIT License
 
-// Copyright (c) 2016-2019 Vasileios Kon. Pothos (terablade2001)
+// Copyright (c) 2016-2020 Vasileios Kon. Pothos (terablade2001)
 // https://github.com/terablade2001/CECS
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.128)
+#define CECS__VERSION (0.129)
 
 #ifndef CECSDEBUG
 	#define CECS__MAXERRORS (1024)
@@ -188,28 +188,28 @@ extern "C" {
 #endif
 
 /**
- *  \brief Initialize the CECS object. Multiple CECS objects can exist in a 
- * project (i.e. when mixing third party libaries which in use a static 
- * existance of the CECS library), thus for proper usage, the client can select 
+ *  \brief Initialize the CECS object. Multiple CECS objects can exist in a
+ * project (i.e. when mixing third party libaries which in use a static
+ * existance of the CECS library), thus for proper usage, the client can select
  * which CECS object will be used using a pointer to it.
  *  \param [in] name Is a string (up to 64 characters) representing in a
- * textual way the CECS object that is used. If the CECS it has been initialied 
+ * textual way the CECS object that is used. If the CECS it has been initialied
  * before (with another name) then, the 'name' argument is ignored.
- *  \param [in] Pointer to a CECS object that is going to be used for error 
- * recording. If that pointer is NULL then the default CECS object is going to 
+ *  \param [in] Pointer to a CECS object that is going to be used for error
+ * recording. If that pointer is NULL then the default CECS object is going to
  * be used.
  *  \param [in] It it's != 0, it will enforce name update of the ECS.
  *  \return The pointer to the CECS object that is ussed (Linked object)
- *  \details When 'pcecs' argument is NULL this means that the CECS object 
- * that is going to be initialized is a brand new object; and therefore it 
- * needs and a name. The 'name' argument is then used. When the 'pcecs' 
- * argument is not NULL, the 'name' argument is used on if the 'pcecs' argument 
+ *  \details When 'pcecs' argument is NULL this means that the CECS object
+ * that is going to be initialized is a brand new object; and therefore it
+ * needs and a name. The 'name' argument is then used. When the 'pcecs'
+ * argument is not NULL, the 'name' argument is used on if the 'pcecs' argument
  * is pointing to a non-initialized CECS object.
  */
 sCECS* CECS_Initialize(const char* name, sCECS* pcecs, int replaceName);
 
 /**
- *  \brief Cleanup and Resets an CECS object by pointer. If the input pointer 
+ *  \brief Cleanup and Resets an CECS object by pointer. If the input pointer
  * is NULL then it Shutdown the linked object (if any).
  *  \param [in] pcecs Pointer to the CECS object that is going to be Cleanup.
  *  \return The pointer to the Linked CECS object.
@@ -217,7 +217,7 @@ sCECS* CECS_Initialize(const char* name, sCECS* pcecs, int replaceName);
 sCECS* CECS_Shutdown(sCECS* pcecs);
 
 /**
- *  \brief Check if the linked CECS object is initialized. If not initialize 
+ *  \brief Check if the linked CECS object is initialized. If not initialize
  * it and add an error to it.
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] msg A string identifier to used in case of error.
@@ -240,9 +240,9 @@ int CECS_CheckIfInitNoMsg(sCECS* pcecs);
 sCECS* CECS_getCecs(sCECS* pcecs);
 
 /**
- *  \brief Recording an Error in a CECS object using an extra identification 
- *  flag called "modName". If not Linked object exist, then it uses the 
- *  internal CECS object. If the used CECS object is not initialized, then it 
+ *  \brief Recording an Error in a CECS object using an extra identification
+ *  flag called "modName". If not Linked object exist, then it uses the
+ *  internal CECS object. If the used CECS object is not initialized, then it
  *  also initialize it.
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] ModName Module Name (for further identification)
@@ -289,8 +289,8 @@ sCECS* CECS_RecErrorMod_NoList(
 );
 
 /**
- *  \brief Recording an Error in a CECS object. If not Linked object exist, 
- * then it uses the internal CECS object. If the used CECS object is not 
+ *  \brief Recording an Error in a CECS object. If not Linked object exist,
+ * then it uses the internal CECS object. If the used CECS object is not
  * initialized, then it also initialize it.
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] errid An error id number.
@@ -319,7 +319,7 @@ sCECS* CECS_RecError(
 int CECS_GetNumberOfAllErrors(sCECS* pcecs);
 
 /**
- *  \brief Returns number of recorded errors/events in the table of specific 
+ *  \brief Returns number of recorded errors/events in the table of specific
  *  type.
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] typeId A number representing the Type of the error.
@@ -328,8 +328,8 @@ int CECS_GetNumberOfAllErrors(sCECS* pcecs);
 int CECS_GetNumberOfErrorsByType(sCECS* pcecs, int typeId);
 
 /**
- *  \brief Returns the IDs of recorded errors, for a specific type, thus the 
- *  client to be able to read only the errors of the specific type by using 
+ *  \brief Returns the IDs of recorded errors, for a specific type, thus the
+ *  client to be able to read only the errors of the specific type by using
  *  the corresponding functions CECS_getErrorStr/Id/Type/File/Line/Name().
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] typeId A number representing the Type of the error.
@@ -339,7 +339,7 @@ int CECS_GetNumberOfErrorsByType(sCECS* pcecs, int typeId);
 int* CECS_GetErrorsIDsByType(sCECS* pcecs, int typeId, int* NErr);
 
 /**
- *  \brief Returns an error message based on it's id (First error occuring is 
+ *  \brief Returns an error message based on it's id (First error occuring is
  * recorded with id 0)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error message to be returned.
@@ -347,7 +347,7 @@ int* CECS_GetErrorsIDsByType(sCECS* pcecs, int typeId, int* NErr);
  */
 const char* CECS_getErrorStr(sCECS* pcecs, int id);
 /**
- *  \brief Returns an ErrorID based on it's id (First error occuring is 
+ *  \brief Returns an ErrorID based on it's id (First error occuring is
  * recorded with id 0)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error ErrorID to be returned.
@@ -355,7 +355,7 @@ const char* CECS_getErrorStr(sCECS* pcecs, int id);
  */
 int CECS_getErrorId(sCECS* pcecs, int id);
 /**
- *  \brief Returns an error Type based on it's id (First error occuring is 
+ *  \brief Returns an error Type based on it's id (First error occuring is
  * recorded with id 0)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Type to be returned.
@@ -363,7 +363,7 @@ int CECS_getErrorId(sCECS* pcecs, int id);
  */
 int CECS_getErrorType(sCECS* pcecs, int id);
 /**
- *  \brief Returns an error Filename (where the error was occured) based on 
+ *  \brief Returns an error Filename (where the error was occured) based on
  * it's id (First error occuring is recorded with id 0)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Filename to be returned.
@@ -371,7 +371,7 @@ int CECS_getErrorType(sCECS* pcecs, int id);
  */
 const char* CECS_getErrorFile(sCECS* pcecs, int id);
 /**
- *  \brief Returns an error source-code line (where the error was occured) 
+ *  \brief Returns an error source-code line (where the error was occured)
  * based on it's id (First error occuring is recorded with id 0)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Line to be returned.
@@ -379,7 +379,7 @@ const char* CECS_getErrorFile(sCECS* pcecs, int id);
  */
 unsigned int CECS_getErrorLine(sCECS* pcecs, int id);
 /**
- *  \brief Returns an error Module-name (where the error was occured) based on 
+ *  \brief Returns an error Module-name (where the error was occured) based on
  * it's id (First error occuring is recorded with id 0)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \param [in] id index for the error Module name to be returned.
@@ -388,7 +388,7 @@ unsigned int CECS_getErrorLine(sCECS* pcecs, int id);
 const char* CECS_getErrorMod(sCECS* pcecs, int id);
 
 /**
- *  \brief Returns the name of the linked CECS object (for identification 
+ *  \brief Returns the name of the linked CECS object (for identification
  * reasons)
  *  \param [in] pcecs Pointer to Linked CECS object.
  *  \return The name of the CECS linked object.
@@ -406,8 +406,9 @@ const char* CECS_str(sCECS* pcecs, int typeId);
 /**
  *  \brief Clears the recorded errors from the error table.
  *  \param [in] pcecs Pointer to Linked CECS object.
+ *  \param [in] numberOfLatestRecords The number of records to clear backwards. -1 for all.
  */
-void CECS_clear(sCECS* pcecs);
+void CECS_clear(sCECS* pcecs, int numberOfLatestRecords);
 
 /**
  *  \brief Clears the recorded errors from the error table.
@@ -439,7 +440,7 @@ sCECS* CECS_SetFunc_Unlock(
 );
 
 #ifdef __cplusplus
-} // extern "C" { 
+} // extern "C" {
 #endif
 
 #endif
