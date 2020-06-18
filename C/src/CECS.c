@@ -580,12 +580,12 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	unsigned char FS;
 	CECS_CheckIfInit(pcecs, "CECS_str()");
 	IndxE = CECS_GetErrorsIDsByType(pCECS, typeId, &NE);
-	unsigned int maxstrprint = CECS__FERRORL*4;
+	unsigned int maxstrprint = MINIMUM_ALLOC_FOR_STR_CALL+4;
 	unsigned int maxLineLength = 0;
 	for (int i=0; i < NE; i++) {
 		unsigned int lineLength = pCECS->SErrorsL[IndxE[i]];
 		if (lineLength > maxLineLength) { maxLineLength = lineLength; }
-		maxstrprint += lineLength;
+		maxstrprint += lineLength+64;
 	}
 
 	char* lstr = (char*)calloc(maxLineLength+2, sizeof(char));
@@ -594,9 +594,10 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	if (pCECS->DispStr != NULL) free(pCECS->DispStr);
 	pCECS->DispStr = (char*)calloc(maxstrprint+2, sizeof(char));
 	char* str = pCECS->DispStr;
-	static char devBuff[CECS__FERRORL*4] = {0};
+	const int devBuffLimitSize = (MINIMUM_ALLOC_FOR_STR_CALL)/2;
+	static char devBuff[devBuffLimitSize] = {0};
 	if (pCECS->SetupFlag & 0x80) { // <<7: Show CECS info
-		snprintf(str, CECS__FERRORL-1,
+		snprintf(str, devBuffLimitSize,
 			"-------------------------------------------------------\n"
 			"::    CECS (C/C++ Error Control System) v[%5.3f]     ::\n"
 			"::        www.github.com/terablade2001/CECS          ::\n"
@@ -606,21 +607,20 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 	} else { str[0]=0; str[1]=0; }
 
 	if (!(pCECS->SetupFlag & 0x40)) { // <<6: Show track errors
-		snprintf(devBuff, CECS__FERRORL*3-1,
+		snprintf(devBuff, devBuffLimitSize,
 		"=======================================================\n"
 		"= CECS:: Errors occurred! (Errors tracking is [OFF])  =\n"
 		"=======================================================\n"
 		);
-		strncat(str, devBuff, maxstrprint);
+		strncat(str, devBuff, devBuffLimitSize);
 		return str;
 	}
 
 
 	if (typeId == _CECS_ERRTYPE_ALL) {
-		snprintf(devBuff, CECS__FERRORL-1,
+		snprintf(devBuff, devBuffLimitSize,
 			"======= (%s):: [%i] Record(s) of ALL Types recorded! =======\n", pCECS->Name, NE
 		);
-		strncat(str, devBuff, maxstrprint);
 	} else {
 		#define arsz (16)
 		#define ars (arsz-1)
@@ -638,11 +638,11 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 		}
 		#undef ars
 		#undef arsz
-		snprintf(devBuff, CECS__FERRORL-1,
+		snprintf(devBuff, devBuffLimitSize,
 			"======= (%s):: [%i] Record(s) of Type [%s] recorded! =======\n", pCECS->Name, NE, serrtype
 		);
-		strncat(str, devBuff, maxstrprint);
 	}
+	strncat(str, devBuff, devBuffLimitSize);
 
 	if (NE > 0) {
 		FS = pCECS->SetupFlag;
@@ -667,32 +667,32 @@ const char* CECS_str(sCECS* pcecs, int typeId) {
 				#undef ars
 				#undef arsz
 				snprintf(lstr, maxLineLength, "= [%s]> ",serrtype);
-				strncat(str,lstr, maxstrprint);
+				strncat(str,lstr, maxLineLength);
 			}
 
 			if (FS & 0x20) {
 				snprintf(lstr, maxLineLength, "#%s: ",CECS_getErrorMod(pCECS, IDX));
-				strncat(str,lstr, maxstrprint);
+				strncat(str,lstr, maxLineLength);
 			}
 			if (FS & 0x01) {
 				snprintf(lstr, maxLineLength, "%i | ",CECS_getErrorId(pCECS, IDX));
-				strncat(str,lstr, maxstrprint);
+				strncat(str,lstr, maxLineLength);
 			}
 			if (FS & 0x04) {
 				snprintf(lstr, maxLineLength, "[%s], ",CECS_getErrorFile(pCECS, IDX));
-				strncat(str,lstr, maxstrprint);
+				strncat(str,lstr, maxLineLength);
 			}
 			if (FS & 0x08){
 				snprintf(lstr, maxLineLength, "%i |> ",CECS_getErrorLine(pCECS, IDX));
-				strncat(str,lstr, maxstrprint);
+				strncat(str,lstr, maxLineLength);
 			}
 			if (FS & 0x10){
 				snprintf(lstr, maxLineLength, "%s",CECS_getErrorStr(pCECS, IDX));
-				strncat(str,lstr, maxstrprint);
+				strncat(str,lstr, maxLineLength);
 			}
-			strncat(str,"\n",maxstrprint);
+			strncat(str,"\n",maxLineLength);
 		}
-		strncat(str,"=======================================================\n",maxstrprint);
+		strncat(str,"=======================================================\n",maxLineLength);
 	}
 
 	if (lstr != NULL) free(lstr);
