@@ -24,7 +24,7 @@
 #ifndef __CECS__HEADER__
 #define __CECS__HEADER__
 
-#define CECS__VERSION (0.130)
+#define CECS__VERSION (0.131)
 
 #define MINIMUM_ALLOC_FOR_STR_CALL (2048)
 #ifndef CECSDEBUG

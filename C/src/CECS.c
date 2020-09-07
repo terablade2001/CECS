@@ -412,8 +412,13 @@ sCECS* CECS_RecErrorMod_NoList(
 			}
 		}
 
-		if (FS & 0x20) // <<5: module
-			strncpy(pCECS->MErrors[idx], modName, CECS__MODNAMELENGTH);
+		if (FS & 0x20) { // <<5: module
+			if (modName != NULL) {
+				strncpy(pCECS->MErrors[idx], modName, CECS__MODNAMELENGTH);
+			} else {
+				strncpy(pCECS->MErrors[idx], "undefined-Mod", CECS__MODNAMELENGTH);
+			}
+		}
 	}
 	if (NULL!=pCECS->cecs_unlock) pCECS->cecs_unlock();
   return pCECS;
