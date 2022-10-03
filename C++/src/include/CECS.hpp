@@ -38,6 +38,7 @@
 
 // #define dbg_SHOW_INFO 2
 #define dbg_SHOW_ID (uint64_t(0b0001) | (uint64_t(1)<<63))
+#define info_(level,str) if (info_kVerboseLevel_ >= level) { std::cout<<str<<std::endl; }
 
 #ifndef __CECS__HEADER__
 extern "C" {
